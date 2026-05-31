@@ -3,7 +3,7 @@ require 'swagger_helper'
 RSpec.describe 'API V1 Sessions', type: :request do
   path '/api/v1/session' do
     post 'Login' do
-      tags        'Public'
+      tags        'Public | Sessions'
       consumes    'application/json'
       produces    'application/json'
       description 'Authenticates user and sets httpOnly session cookie. Rate limited to 10 requests/minute per IP.'
@@ -60,7 +60,7 @@ RSpec.describe 'API V1 Sessions', type: :request do
     end
 
     delete 'Logout' do
-      tags        'Public'
+      tags        'Public | Sessions'
       produces    'application/json'
       description 'Destroys the current session and clears the session cookie.'
       security    [ cookieAuth: [] ]

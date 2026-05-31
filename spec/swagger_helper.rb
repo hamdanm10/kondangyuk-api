@@ -38,16 +38,20 @@ RSpec.configure do |config|
       },
       tags: [
         {
-          name: 'Public',
-          description: 'Endpoints accessible without authentication.'
+          name: 'Public | Sessions',
+          description: 'Authentication — login and logout. No authentication required.'
         },
         {
-          name: 'Admin',
-          description: 'Endpoints accessible by **admin** and **super_admin** roles.'
+          name: 'Admin | Profiles',
+          description: 'Authenticated user profile. Accessible by **admin** and **super_admin** roles.'
         },
         {
-          name: 'Super Admin',
-          description: 'Endpoints accessible by **super_admin** role only.'
+          name: 'Super Admin | Users',
+          description: 'Admin user management. Accessible by **super_admin** role only.'
+        },
+        {
+          name: 'Super Admin | Themes',
+          description: 'Digital invitation theme management. Accessible by **super_admin** role only.'
         }
       ],
       servers: [

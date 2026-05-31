@@ -28,12 +28,16 @@ components:
         data:
           type: object
 tags:
-- name: Public
-  description: Endpoints accessible without authentication.
-- name: Admin
-  description: Endpoints accessible by **admin** and **super_admin** roles.
-- name: Super Admin
-  description: Endpoints accessible by **super_admin** role only.
+- name: Public | Sessions
+  description: Authentication — login and logout. No authentication required.
+- name: Admin | Profiles
+  description: Authenticated user profile. Accessible by **admin** and **super_admin**
+    roles.
+- name: Super Admin | Users
+  description: Admin user management. Accessible by **super_admin** role only.
+- name: Super Admin | Themes
+  description: Digital invitation theme management. Accessible by **super_admin**
+    role only.
 servers:
 - url: http://localhost:3000
   description: Development
@@ -42,7 +46,7 @@ paths:
     get:
       summary: Get own profile
       tags:
-      - Admin
+      - Admin | Profiles
       description: Returns the authenticated user profile. Accessible by admin and
         super_admin.
       security:
@@ -87,7 +91,7 @@ paths:
     post:
       summary: Login
       tags:
-      - Public
+      - Public | Sessions
       description: Authenticates user and sets httpOnly session cookie. Rate limited
         to 10 requests/minute per IP.
       parameters: []
@@ -146,7 +150,7 @@ paths:
     delete:
       summary: Logout
       tags:
-      - Public
+      - Public | Sessions
       description: Destroys the current session and clears the session cookie.
       security:
       - cookieAuth: []
@@ -157,7 +161,7 @@ paths:
     get:
       summary: List all themes
       tags:
-      - Super Admin
+      - Super Admin | Themes
       description: Returns all themes with pagination. Accessible by super_admin only.
       security:
       - cookieAuth: []
@@ -238,7 +242,7 @@ paths:
     post:
       summary: Create theme
       tags:
-      - Super Admin
+      - Super Admin | Themes
       description: Creates a new theme. Accessible by super_admin only.
       security:
       - cookieAuth: []
@@ -301,10 +305,69 @@ paths:
                   - name
         required: true
   "/api/v1/themes/{id}":
+    get:
+      summary: Show theme
+      tags:
+      - Super Admin | Themes
+      description: Returns a single theme by ID. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Theme ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: theme returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      theme:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+        '404':
+          description: theme not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
     delete:
       summary: Delete theme
       tags:
-      - Super Admin
+      - Super Admin | Themes
       description: Deletes a theme by ID. Accessible by super_admin only.
       security:
       - cookieAuth: []
@@ -350,7 +413,7 @@ paths:
     get:
       summary: List all admin users
       tags:
-      - Super Admin
+      - Super Admin | Users
       description: Returns all users with role admin. Accessible by super_admin only.
       security:
       - cookieAuth: []
@@ -434,7 +497,7 @@ paths:
     post:
       summary: Create admin user
       tags:
-      - Super Admin
+      - Super Admin | Users
       description: Creates a new user with role admin. Accessible by super_admin only.
       security:
       - cookieAuth: []
