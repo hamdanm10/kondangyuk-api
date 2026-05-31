@@ -53,13 +53,14 @@ group :development, :test do
   gem "faker"
 end
 
+group :development, :test do
+  gem "rswag-api"
+  gem "rswag-ui"
+end
+
 group :test do
   gem "rswag-specs"
 end
-
-# Swagger API documentation
-gem "rswag-api"
-gem "rswag-ui"
 
 # Pagination
 gem "pagy", "~> 43.5"
