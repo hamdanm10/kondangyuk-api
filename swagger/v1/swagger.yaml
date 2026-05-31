@@ -1,0 +1,269 @@
+---
+openapi: 3.0.1
+info:
+  title: Kondangyuk API
+  version: v1
+  description: API documentation for Kondangyuk
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+  schemas:
+    JSendSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+    JSendFail:
+      type: object
+      properties:
+        status:
+          type: string
+          example: fail
+        data:
+          type: object
+servers:
+- url: http://localhost:3000
+  description: Development
+paths:
+  "/api/v1/profile":
+    get:
+      summary: Get own profile
+      tags:
+      - Profile
+      description: Returns the authenticated user profile. Accessible by admin and
+        super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: profile returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          email:
+                            type: string
+                          role:
+                            type: string
+                            example: admin
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  data:
+                    type: object
+  "/api/v1/session":
+    post:
+      summary: Login
+      tags:
+      - Authentication
+      description: Authenticates user and sets httpOnly session cookie. Rate limited
+        to 10 requests/minute per IP.
+      parameters: []
+      responses:
+        '201':
+          description: login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          email:
+                            type: string
+        '422':
+          description: invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  data:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: admin@kondangyuk.test
+                    password:
+                      type: string
+                      example: Password12345!
+                  required:
+                  - email
+                  - password
+        required: true
+    delete:
+      summary: Logout
+      tags:
+      - Authentication
+      description: Destroys the current session and clears the session cookie.
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: logout successful
+  "/api/v1/users":
+    get:
+      summary: List all admin users
+      tags:
+      - Users
+      description: Returns all users with role admin. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: users returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            email:
+                              type: string
+                            role:
+                              type: string
+                              example: admin
+                            created_at:
+                              type: string
+                              format: date-time
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Create admin user
+      tags:
+      - Users
+      description: Creates a new user with role admin. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: user created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          email:
+                            type: string
+                          role:
+                            type: string
+                            example: admin
+                          created_at:
+                            type: string
+                            format: date-time
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: newadmin@kondangyuk.test
+                    password:
+                      type: string
+                      example: Password12345!
+                  required:
+                  - email
+                  - password
+        required: true

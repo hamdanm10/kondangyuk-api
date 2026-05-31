@@ -47,4 +47,16 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
 end
+
+group :test do
+  gem "rswag-specs"
+end
+
+# Swagger API documentation
+gem "rswag-api"
+gem "rswag-ui"

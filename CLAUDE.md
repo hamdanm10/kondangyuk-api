@@ -32,7 +32,20 @@ bin/brakeman --quiet --no-pager  # Static security analysis
 bin/bundler-audit  # Check gems for known CVEs
 ```
 
-> There is no test suite configured — `rails/test_unit/railtie` is intentionally commented out in `config/application.rb`.
+### Testing and API documentation
+
+```bash
+bundle exec rspec spec/requests/                        # Run all request specs
+bundle exec rspec spec/requests/api/v1/users_spec.rb   # Run specific spec file
+
+# Generate swagger.yaml from specs (always run after editing specs)
+SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ \
+  --format Rswag::Specs::SwaggerFormatter --order defined
+```
+
+Swagger UI tersedia di `/api-docs` setelah server dijalankan.
+
+> `rails/test_unit/railtie` is intentionally commented out — the project uses RSpec instead.
 
 ---
 
@@ -422,6 +435,88 @@ bin/kamal console   # Rails console on the server
 bin/kamal logs      # Tail production logs
 bin/kamal shell     # bash on the server
 ```
+
+---
+
+## Testing & API Documentation (RSpec + rswag)
+
+Proyek ini menggunakan **RSpec** untuk testing dan **rswag** untuk generate dokumentasi Swagger/OpenAPI dari specs.
+
+### Struktur direktori
+
+```
+spec/
+├── factories/          # FactoryBot factories (satu file per model)
+├── requests/
+│   └── api/
+│       └── v1/         # Request specs (satu file per controller)
+├── support/
+│   └── request_helpers.rb
+├── rails_helper.rb
+└── swagger_helper.rb   # Konfigurasi rswag
+swagger/
+└── v1/
+    └── swagger.yaml    # Auto-generated — JANGAN edit manual
+```
+
+### Anatomi rswag request spec
+
+```ruby
+require 'swagger_helper'
+
+RSpec.describe 'API V1 Users', type: :request do
+  path '/api/v1/users' do
+    post 'Create admin user' do
+      tags     'Users'
+      consumes 'application/json'
+      produces 'application/json'
+      security [ cookieAuth: [] ]
+
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        properties: {
+          user: {
+            type: :object,
+            properties: {
+              email:    { type: :string },
+              password: { type: :string }
+            },
+            required: %w[email password]
+          }
+        }
+      }
+
+      response '201', 'user created' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:body) { { user: { email: 'new@test.com', password: 'Password12345!' } } }
+        before { login_as(super_admin) }
+        schema type: :object, properties: { status: { type: :string } }
+        run_test!
+      end
+    end
+  end
+end
+```
+
+### Helper yang tersedia
+
+```ruby
+login_as(user)   # POST /api/v1/session dengan kredensial user (set cookie otomatis)
+```
+
+### Mandatory rules
+
+- Setiap endpoint baru **WAJIB** memiliki rswag request spec di `spec/requests/api/v1/`
+- Setiap spec **WAJIB** mencakup semua response codes yang mungkin (sukses, validasi gagal, unauthorized, forbidden)
+- Setiap spec **WAJIB** menggunakan `swagger_helper` — bukan `rails_helper`
+- Factories **WAJIB** dibuat untuk setiap model baru di `spec/factories/`
+- `swagger/v1/swagger.yaml` **WAJIB** di-regenerate setelah menambah atau mengubah spec:
+  ```bash
+  SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ --format Rswag::Specs::SwaggerFormatter --order defined
+  ```
+- **JANGAN** edit `swagger/v1/swagger.yaml` secara manual — file ini auto-generated dari specs
+- Request ke authenticated endpoint dalam specs **WAJIB** menggunakan `before { login_as(user) }`
+- Endpoint yang memerlukan auth **WAJIB** ditandai dengan `security [ cookieAuth: [] ]`
 
 ---
 
