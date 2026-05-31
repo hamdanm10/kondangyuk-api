@@ -5,6 +5,16 @@ All rules in this file are **mandatory and must be followed without exception**.
 
 ---
 
+## Project Overview
+
+**Kondangyuk** is a back-end API for a **digital invitation platform** with the following characteristics:
+
+- **Digital invitations are reusable and layout-customizable** — a single invitation template can be modified per order (layout, content, styling) and reused across many orders.
+- **Orders come from third-party marketplaces** (e.g., Shopee) — there is **no API integration** with these platforms. Orders are managed manually inside this application after a buyer places an order on the marketplace.
+- The application handles the full post-order workflow: receiving order data, assigning/customizing an invitation template for the order, and delivering the final digital invitation.
+
+---
+
 ## Stack
 
 - **Ruby 4.0.5**, **Rails 8.1.3** (API-only — no views, helpers, or asset pipeline)
