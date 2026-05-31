@@ -300,7 +300,7 @@ RSpec.describe 'API V1 Themes', type: :request do
     delete 'Delete theme' do
       tags        'Super Admin | Themes'
       produces    'application/json'
-      description 'Deletes a theme by ID. Accessible by super_admin only.'
+      description 'Soft deletes a theme by ID (sets deleted_at). Record is retained in the database and excluded from all queries. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
       parameter name: :id, in: :path, type: :integer, required: true,

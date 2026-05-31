@@ -1,6 +1,6 @@
 class ThemeRepository < BaseRepository
   def list_all
-    Theme.order(:name)
+    Theme.active.order(:name)
   end
 
   def create_theme(name:)
@@ -8,7 +8,7 @@ class ThemeRepository < BaseRepository
   end
 
   def find_by_id(id)
-    Theme.find(id)
+    Theme.active.find(id)
   end
 
   def update_theme(theme, name:)
@@ -16,8 +16,8 @@ class ThemeRepository < BaseRepository
     theme
   end
 
-  def destroy_theme(theme)
-    theme.destroy!
+  def soft_delete(theme)
+    theme.update!(deleted_at: Time.current)
   end
 
   private

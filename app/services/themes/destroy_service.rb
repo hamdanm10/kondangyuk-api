@@ -7,7 +7,7 @@ module Themes
     def call
       repo = ThemeRepository.new
       theme = repo.find_by_id(@id)
-      repo.destroy_theme(theme)
+      repo.soft_delete(theme)
       ServiceResult.success({})
     end
   end

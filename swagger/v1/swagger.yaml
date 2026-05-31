@@ -448,7 +448,8 @@ paths:
       summary: Delete theme
       tags:
       - Super Admin | Themes
-      description: Deletes a theme by ID. Accessible by super_admin only.
+      description: Soft deletes a theme by ID (sets deleted_at). Record is retained
+        in the database and excluded from all queries. Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters:

@@ -415,6 +415,9 @@ end
 - ALWAYS use `resources` or `resource` — NEVER define routes manually with `get`, `post`, `delete`, etc.
 - Use `only:` or `except:` to restrict to the actions actually implemented
 - Every route that returns a list of data (index actions) MUST implement pagination using the `pagy` gem — call `pagy(:offset, collection)` in the controller and include `pagination` metadata in the JBuilder response. Never return unbounded collections.
+- Every DELETE endpoint MUST explicitly state in its rswag `description` whether it is a **soft delete** or **hard delete**:
+  - **Soft delete** (master data tables, e.g. themes): set `deleted_at` timestamp — record is retained and excluded from queries. Description example: `"Soft deletes a ... by ID (sets deleted_at). Record is retained in the database and excluded from all queries."`
+  - **Hard delete** (transactional/non-master data): record is permanently removed. Description example: `"Permanently deletes a ... by ID."`
 
 ---
 
