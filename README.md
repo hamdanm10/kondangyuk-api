@@ -1,6 +1,6 @@
 # Kondangyuk API
 
-Rails 8.1 API-only dengan autentikasi httpOnly cookie dan Role-Based Access Control (RBAC).
+Rails 8.1 API-only with httpOnly cookie authentication and Role-Based Access Control (RBAC).
 
 ---
 
@@ -8,16 +8,16 @@ Rails 8.1 API-only dengan autentikasi httpOnly cookie dan Role-Based Access Cont
 
 - Ruby 4.0.5 / Rails 8.1.3 (API-only)
 - PostgreSQL
-- Solid Cache / Solid Queue / Solid Cable (tanpa Redis)
-- Autentikasi: httpOnly cookie session (tanpa JWT)
+- Solid Cache / Solid Queue / Solid Cable (no Redis)
+- Authentication: httpOnly cookie session (no JWT)
 
 ---
 
 ## Setup
 
 ```bash
-bin/setup           # Install gems + buat database + jalankan seed
-bin/dev             # Jalankan server (localhost:3000)
+bin/setup    # Install gems + create database + run seeds
+bin/dev      # Start server (localhost:3000)
 ```
 
 ### Manual setup
@@ -28,13 +28,13 @@ bin/rails db:create db:migrate db:seed
 bin/dev
 ```
 
-### Konfigurasi credentials
+### Credentials configuration
 
 ```bash
 bin/rails credentials:edit
 ```
 
-Tambahkan nilai berikut:
+Add the following values:
 
 ```yaml
 cors:
@@ -47,49 +47,49 @@ cors:
 
 ## API Documentation (Swagger UI)
 
-Setelah `git pull`, jalankan langkah berikut untuk melihat dokumentasi API:
+After `git pull`, follow these steps to view the API documentation:
 
-**1. Setup awal (hanya sekali)**
+**1. Initial setup (once only)**
 ```bash
 bin/setup
 ```
 
-**2. Generate swagger.yaml dari specs**
+**2. Generate swagger.yaml from specs**
 ```bash
 SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ \
   --format Rswag::Specs::SwaggerFormatter --order defined
 ```
 
-**3. Jalankan server**
+**3. Start the server**
 ```bash
 bin/dev
 ```
 
-**4. Buka browser**
+**4. Open in browser**
 ```
 http://localhost:3000/api-docs
 ```
 
-> Langkah 2 wajib dijalankan ulang setiap kali ada endpoint baru atau perubahan spec.
+> Step 2 must be re-run every time a new endpoint is added or a spec is changed.
 
 ---
 
 ## Roles
 
-| Role | Deskripsi |
+| Role | Description |
 |---|---|
-| `admin` | Staff admin — akses ke fitur admin dan profil sendiri |
-| `super_admin` | Super admin — akses penuh termasuk manajemen role user |
+| `admin` | Admin staff — access to admin features and own profile |
+| `super_admin` | Super admin — full access including user role management |
 
 ---
 
-## Endpoint
+## Endpoints
 
-### Autentikasi
+### Authentication
 
 #### `POST /api/v1/session` — Login
 
-Tidak memerlukan autentikasi. Rate limit: 10 request/menit per IP.
+No authentication required. Rate limit: 10 requests/minute per IP.
 
 **Request:**
 ```json
@@ -101,7 +101,7 @@ Tidak memerlukan autentikasi. Rate limit: 10 request/menit per IP.
 }
 ```
 
-**Response sukses `201 Created`:**
+**Success response `201 Created`:**
 ```json
 {
   "status": "success",
@@ -113,9 +113,9 @@ Tidak memerlukan autentikasi. Rate limit: 10 request/menit per IP.
   }
 }
 ```
-Token disimpan sebagai httpOnly cookie `session_token`.
+Token is stored as an httpOnly cookie `session_token`.
 
-**Response gagal `422 Unprocessable Entity`:**
+**Failure response `422 Unprocessable Entity`:**
 ```json
 {
   "status": "fail",
@@ -129,19 +129,19 @@ Token disimpan sebagai httpOnly cookie `session_token`.
 
 #### `DELETE /api/v1/session` — Logout
 
-Tidak memerlukan autentikasi. Menghapus session dari DB dan menghapus cookie.
+No authentication required. Destroys the session from the database and clears the cookie.
 
-**Response `204 No Content`** — tidak ada body.
+**Response `204 No Content`** — no body.
 
 ---
 
-### Profil
+### Profile
 
-#### `GET /api/v1/profile` — Lihat profil sendiri
+#### `GET /api/v1/profile` — View own profile
 
-Memerlukan autentikasi (cookie `session_token`). Bisa diakses oleh `admin` dan `super_admin`.
+Requires authentication (cookie `session_token`). Accessible by `admin` and `super_admin`.
 
-**Response sukses `200 OK`:**
+**Success response `200 OK`:**
 ```json
 {
   "status": "success",
@@ -155,7 +155,7 @@ Memerlukan autentikasi (cookie `session_token`). Bisa diakses oleh `admin` dan `
 }
 ```
 
-**Response tidak terautentikasi `401 Unauthorized`:**
+**Unauthenticated response `401 Unauthorized`:**
 ```json
 {
   "status": "fail",
@@ -165,7 +165,7 @@ Memerlukan autentikasi (cookie `session_token`). Bisa diakses oleh `admin` dan `
 }
 ```
 
-**Response akses ditolak `403 Forbidden`:**
+**Access denied response `403 Forbidden`:**
 ```json
 {
   "status": "fail",
@@ -177,42 +177,42 @@ Memerlukan autentikasi (cookie `session_token`). Bisa diakses oleh `admin` dan `
 
 ---
 
-## Format Response (JSend)
+## Response Format (JSend)
 
-Semua response mengikuti spesifikasi [JSend](https://github.com/omniti-labs/jsend):
+All responses follow the [JSend specification](https://github.com/omniti-labs/jsend):
 
-| Status | HTTP | Digunakan untuk |
+| Status | HTTP | Used for |
 |---|---|---|
-| `success` | 2xx | Request berhasil, data tersedia |
-| `fail` | 4xx | Request ditolak (validasi gagal, tidak terautentikasi, dsb.) |
+| `success` | 2xx | Request succeeded, data available |
+| `fail` | 4xx | Request rejected (validation failed, unauthenticated, etc.) |
 | `error` | 5xx | Server error |
 
 ```json
 { "status": "success", "data": { ... } }
-{ "status": "fail",    "data": { "field": ["pesan error"] } }
-{ "status": "error",   "message": "Pesan error yang aman" }
+{ "status": "fail",    "data": { "field": ["error message"] } }
+{ "status": "error",   "message": "A safe error message" }
 ```
 
 ---
 
-## Keamanan
+## Security
 
 - **Cookie**: httpOnly, Secure (production), SameSite=Lax
-- **CORS**: origins dari Rails credentials, `credentials: true`
-- **SSL**: `force_ssl = true` di production
-- **Rate limiting**: 10 req/menit per IP pada endpoint login
-- **Password**: minimal 12 karakter, disimpan dengan bcrypt
+- **CORS**: origins from Rails credentials, `credentials: true`
+- **SSL**: `force_ssl = true` in production
+- **Rate limiting**: 10 req/min per IP on login endpoint
+- **Password**: minimum 8 characters, stored with bcrypt
 
 ---
 
-## Arsitektur
+## Architecture
 
 ```
-controllers/        <- Terima request, panggil service, render response
-services/           <- Semua business logic
-repositories/       <- Semua query database (ActiveRecord)
-models/             <- Validasi, asosiasi, callbacks
-views/**/*.jbuilder <- Format JSON sukses (JSend envelope)
+controllers/        <- Receive request, call service, render response
+services/           <- All business logic
+repositories/       <- All database queries (ActiveRecord)
+models/             <- Validations, associations, callbacks
+views/**/*.jbuilder <- Format success JSON (JSend envelope)
 ```
 
 ---
