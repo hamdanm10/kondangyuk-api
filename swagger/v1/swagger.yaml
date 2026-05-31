@@ -235,6 +235,71 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Create theme
+      tags:
+      - Super Admin
+      description: Creates a new theme. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: theme created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      theme:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          created_at:
+                            type: string
+                            format: date-time
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                theme:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Dark Mode
+                  required:
+                  - name
+        required: true
   "/api/v1/users":
     get:
       summary: List all admin users
