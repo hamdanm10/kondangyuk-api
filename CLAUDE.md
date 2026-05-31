@@ -182,7 +182,10 @@ end
 - Services MUST NOT call ActiveRecord directly — use a repository
 - Services MUST NOT render responses
 - Service names MUST be descriptive and scoped: `Namespace::VerbNounService`
-  - Examples: `Authentication::LoginService`, `User::CreateService`, `Order::CancelService`
+  - Examples: `Authentication::LoginService`, `Users::CreateService`, `Orders::CancelService`
+- Service folder names MUST use **plural** form — NEVER singular that matches a model name
+  - CORRECT: `app/services/users/`, `app/services/orders/`
+  - WRONG: `app/services/user/`, `app/services/order/` — singular collides with the model constant and breaks Rails autoloading
 
 ---
 
@@ -218,6 +221,9 @@ end
 - Controllers MUST NOT call repositories directly — only services call repositories
 - Repository method names MUST be descriptive: `find_by_email`, `find_active_sessions`, `list_recent_orders`
 - Repositories MUST NOT contain business logic or branching decisions
+- ALL queries that load associations MUST use `includes`, `preload`, or `eager_load` to prevent N+1 queries
+  - CORRECT: `User.includes(:sessions).where(role: :admin)`
+  - WRONG: iterating over users and calling `user.sessions` inside the loop
 
 ---
 

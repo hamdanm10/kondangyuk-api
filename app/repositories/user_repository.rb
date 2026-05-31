@@ -19,6 +19,10 @@ class UserRepository < BaseRepository
     User.where(role: role)
   end
 
+  def list_all
+    User.order(:created_at)
+  end
+
   private
 
   def model
