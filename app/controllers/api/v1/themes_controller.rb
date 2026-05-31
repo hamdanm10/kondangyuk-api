@@ -17,6 +17,11 @@ module Api
         end
       end
 
+      def destroy
+        Themes::DestroyService.call(id: params[:id])
+        render_success({}, :ok)
+      end
+
       private
 
       def theme_params

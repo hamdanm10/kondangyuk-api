@@ -7,6 +7,14 @@ class ThemeRepository < BaseRepository
     Theme.create!(name: name)
   end
 
+  def find_by_id(id)
+    Theme.find(id)
+  end
+
+  def destroy_theme(theme)
+    theme.destroy!
+  end
+
   private
 
   def model

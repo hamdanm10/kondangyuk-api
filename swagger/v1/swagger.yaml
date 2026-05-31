@@ -300,6 +300,52 @@ paths:
                   required:
                   - name
         required: true
+  "/api/v1/themes/{id}":
+    delete:
+      summary: Delete theme
+      tags:
+      - Super Admin
+      description: Deletes a theme by ID. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Theme ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: theme deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+        '404':
+          description: theme not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/users":
     get:
       summary: List all admin users
