@@ -404,6 +404,7 @@ end
 - ALL routes MUST be defined inside `namespace :api` > `namespace :v1`
 - ALWAYS use `resources` or `resource` — NEVER define routes manually with `get`, `post`, `delete`, etc.
 - Use `only:` or `except:` to restrict to the actions actually implemented
+- Every route that returns a list of data (index actions) MUST implement pagination using the `pagy` gem — call `pagy(:offset, collection)` in the controller and include `pagination` metadata in the JBuilder response. Never return unbounded collections.
 
 ---
 

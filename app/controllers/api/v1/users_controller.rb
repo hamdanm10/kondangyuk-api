@@ -3,7 +3,7 @@ module Api
     class UsersController < SuperAdminApplicationController
       def index
         result = Users::ListService.call
-        @users = result.data[:users]
+        @pagy, @users = pagy(:offset, result.data[:collection])
         render_success(nil, :ok)
       end
 

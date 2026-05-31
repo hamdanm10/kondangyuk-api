@@ -1,8 +1,8 @@
 module Users
   class ListService < BaseService
     def call
-      users = UserRepository.new.find_admins
-      ServiceResult.success({ users: users })
+      collection = UserRepository.new.find_admins
+      ServiceResult.success({ collection: collection })
     end
   end
 end

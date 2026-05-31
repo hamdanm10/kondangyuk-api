@@ -8,6 +8,11 @@ RSpec.describe 'API V1 Users', type: :request do
       description 'Returns all users with role admin. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
+      parameter name: :page,  in: :query, type: :integer, required: false,
+                description: 'Page number (default: 1)'
+      parameter name: :limit, in: :query, type: :integer, required: false,
+                description: 'Items per page (default: 10, max: 100)'
+
       response '200', 'users returned' do
         let(:super_admin) { create(:user, :super_admin) }
         before { login_as(super_admin) }
@@ -28,6 +33,17 @@ RSpec.describe 'API V1 Users', type: :request do
                            role:       { type: :string, example: 'admin' },
                            created_at: { type: :string, format: 'date-time' }
                          }
+                       }
+                     },
+                     pagination: {
+                       type: :object,
+                       properties: {
+                         current_page: { type: :integer, example: 1 },
+                         total_pages:  { type: :integer, example: 5 },
+                         total_count:  { type: :integer, example: 100 },
+                         prev_page:    { type: :integer, nullable: true, example: nil },
+                         next_page:    { type: :integer, nullable: true, example: 2 },
+                         limit:        { type: :integer, example: 10 }
                        }
                      }
                    }

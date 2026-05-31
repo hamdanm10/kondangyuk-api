@@ -60,3 +60,6 @@ end
 # Swagger API documentation
 gem "rswag-api"
 gem "rswag-ui"
+
+# Pagination
+gem "pagy", "~> 43.5"
