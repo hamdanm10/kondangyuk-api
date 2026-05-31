@@ -23,6 +23,16 @@ module Api
         end
       end
 
+      def update
+        result = Themes::UpdateService.call(id: params[:id], params: theme_params)
+        if result.success?
+          @theme = result.data[:theme]
+          render_success(nil, :ok)
+        else
+          render_fail(result.errors, :unprocessable_entity)
+        end
+      end
+
       def destroy
         Themes::DestroyService.call(id: params[:id])
         render_success({}, :ok)

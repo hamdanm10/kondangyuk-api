@@ -364,6 +364,86 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update theme
+      tags:
+      - Super Admin | Themes
+      description: Updates a theme by ID. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Theme ID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: theme updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      theme:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: theme not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                theme:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Light Mode
+                  required:
+                  - name
+        required: true
     delete:
       summary: Delete theme
       tags:

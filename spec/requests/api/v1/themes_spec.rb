@@ -206,6 +206,97 @@ RSpec.describe 'API V1 Themes', type: :request do
       end
     end
 
+    patch 'Update theme' do
+      tags        'Super Admin | Themes'
+      consumes    'application/json'
+      produces    'application/json'
+      description 'Updates a theme by ID. Accessible by super_admin only.'
+      security    [ cookieAuth: [] ]
+
+      parameter name: :id, in: :path, type: :integer, required: true,
+                description: 'Theme ID'
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        properties: {
+          theme: {
+            type: :object,
+            properties: {
+              name: { type: :string, example: 'Light Mode' }
+            },
+            required: %w[name]
+          }
+        }
+      }
+
+      response '200', 'theme updated' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:theme) { create(:theme) }
+        let(:id) { theme.id }
+        let(:body) { { theme: { name: 'Light Mode' } } }
+        before { login_as(super_admin) }
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'success' },
+                 data: {
+                   type: :object,
+                   properties: {
+                     theme: {
+                       type: :object,
+                       properties: {
+                         id:         { type: :integer },
+                         name:       { type: :string },
+                         created_at: { type: :string, format: 'date-time' },
+                         updated_at: { type: :string, format: 'date-time' }
+                       }
+                     }
+                   }
+                 }
+               }
+
+        run_test!
+      end
+
+      response '422', 'validation failed' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:theme) { create(:theme) }
+        let(:id) { theme.id }
+        let(:body) { { theme: { name: '' } } }
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '404', 'theme not found' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:id) { 0 }
+        let(:body) { { theme: { name: 'Light Mode' } } }
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '401', 'not authenticated' do
+        let(:id) { 1 }
+        let(:body) { { theme: { name: 'Light Mode' } } }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        let(:id) { 1 }
+        let(:body) { { theme: { name: 'Light Mode' } } }
+        before { login_as(admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+    end
+
     delete 'Delete theme' do
       tags        'Super Admin | Themes'
       produces    'application/json'

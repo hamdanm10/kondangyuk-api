@@ -11,6 +11,11 @@ class ThemeRepository < BaseRepository
     Theme.find(id)
   end
 
+  def update_theme(theme, name:)
+    theme.update!(name: name)
+    theme
+  end
+
   def destroy_theme(theme)
     theme.destroy!
   end
