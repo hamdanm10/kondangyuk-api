@@ -3,7 +3,7 @@ require 'swagger_helper'
 RSpec.describe 'API V1 Users', type: :request do
   path '/api/v1/users' do
     get 'List all admin users' do
-      tags        'Users'
+      tags        'Super Admin'
       produces    'application/json'
       description 'Returns all users with role admin. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
@@ -52,7 +52,7 @@ RSpec.describe 'API V1 Users', type: :request do
     end
 
     post 'Create admin user' do
-      tags        'Users'
+      tags        'Super Admin'
       consumes    'application/json'
       produces    'application/json'
       description 'Creates a new user with role admin. Accessible by super_admin only.'

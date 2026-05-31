@@ -36,6 +36,20 @@ RSpec.configure do |config|
           }
         }
       },
+      tags: [
+        {
+          name: 'Public',
+          description: 'Endpoints accessible without authentication.'
+        },
+        {
+          name: 'Admin',
+          description: 'Endpoints accessible by **admin** and **super_admin** roles.'
+        },
+        {
+          name: 'Super Admin',
+          description: 'Endpoints accessible by **super_admin** role only.'
+        }
+      ],
       servers: [
         { url: 'http://localhost:3000', description: 'Development' }
       ]

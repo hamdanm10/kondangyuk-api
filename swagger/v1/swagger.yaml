@@ -27,6 +27,13 @@ components:
           example: fail
         data:
           type: object
+tags:
+- name: Public
+  description: Endpoints accessible without authentication.
+- name: Admin
+  description: Endpoints accessible by **admin** and **super_admin** roles.
+- name: Super Admin
+  description: Endpoints accessible by **super_admin** role only.
 servers:
 - url: http://localhost:3000
   description: Development
@@ -35,7 +42,7 @@ paths:
     get:
       summary: Get own profile
       tags:
-      - Profile
+      - Admin
       description: Returns the authenticated user profile. Accessible by admin and
         super_admin.
       security:
@@ -80,7 +87,7 @@ paths:
     post:
       summary: Login
       tags:
-      - Authentication
+      - Public
       description: Authenticates user and sets httpOnly session cookie. Rate limited
         to 10 requests/minute per IP.
       parameters: []
@@ -139,7 +146,7 @@ paths:
     delete:
       summary: Logout
       tags:
-      - Authentication
+      - Public
       description: Destroys the current session and clears the session cookie.
       security:
       - cookieAuth: []
@@ -150,7 +157,7 @@ paths:
     get:
       summary: List all admin users
       tags:
-      - Users
+      - Super Admin
       description: Returns all users with role admin. Accessible by super_admin only.
       security:
       - cookieAuth: []
@@ -198,7 +205,7 @@ paths:
     post:
       summary: Create admin user
       tags:
-      - Users
+      - Super Admin
       description: Creates a new user with role admin. Accessible by super_admin only.
       security:
       - cookieAuth: []

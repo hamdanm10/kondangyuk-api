@@ -3,7 +3,7 @@ require 'swagger_helper'
 RSpec.describe 'API V1 Profile', type: :request do
   path '/api/v1/profile' do
     get 'Get own profile' do
-      tags        'Profile'
+      tags        'Admin'
       produces    'application/json'
       description 'Returns the authenticated user profile. Accessible by admin and super_admin.'
       security    [ cookieAuth: [] ]
