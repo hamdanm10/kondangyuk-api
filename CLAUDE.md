@@ -5,6 +5,16 @@ All rules in this file are **mandatory and must be followed without exception**.
 
 ---
 
+## Project Overview
+
+**Kondangyuk** is a back-end API for a **digital invitation platform** with the following characteristics:
+
+- **Digital invitations are reusable and layout-customizable** — a single invitation template can be modified per order (layout, content, styling) and reused across many orders.
+- **Orders come from third-party marketplaces** (e.g., Shopee) — there is **no API integration** with these platforms. Orders are managed manually inside this application after a buyer places an order on the marketplace.
+- The application handles the full post-order workflow: receiving order data, assigning/customizing an invitation template for the order, and delivering the final digital invitation.
+
+---
+
 ## Stack
 
 - **Ruby 4.0.5**, **Rails 8.1.3** (API-only — no views, helpers, or asset pipeline)
@@ -32,7 +42,20 @@ bin/brakeman --quiet --no-pager  # Static security analysis
 bin/bundler-audit  # Check gems for known CVEs
 ```
 
-> There is no test suite configured — `rails/test_unit/railtie` is intentionally commented out in `config/application.rb`.
+### Testing and API documentation
+
+```bash
+bundle exec rspec spec/requests/                        # Run all request specs
+bundle exec rspec spec/requests/api/v1/users_spec.rb   # Run specific spec file
+
+# Generate swagger.yaml from specs (always run after editing specs)
+SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ \
+  --format Rswag::Specs::SwaggerFormatter --order defined
+```
+
+Swagger UI is available at `/api-docs` once the server is running.
+
+> `rails/test_unit/railtie` is intentionally commented out — the project uses RSpec instead.
 
 ---
 
@@ -182,7 +205,10 @@ end
 - Services MUST NOT call ActiveRecord directly — use a repository
 - Services MUST NOT render responses
 - Service names MUST be descriptive and scoped: `Namespace::VerbNounService`
-  - Examples: `Authentication::LoginService`, `User::CreateService`, `Order::CancelService`
+  - Examples: `Authentication::LoginService`, `Users::CreateService`, `Orders::CancelService`
+- Service folder names MUST use **plural** form — NEVER singular that matches a model name
+  - CORRECT: `app/services/users/`, `app/services/orders/`
+  - WRONG: `app/services/user/`, `app/services/order/` — singular collides with the model constant and breaks Rails autoloading
 
 ---
 
@@ -218,6 +244,9 @@ end
 - Controllers MUST NOT call repositories directly — only services call repositories
 - Repository method names MUST be descriptive: `find_by_email`, `find_active_sessions`, `list_recent_orders`
 - Repositories MUST NOT contain business logic or branching decisions
+- ALL queries that load associations MUST use `includes`, `preload`, or `eager_load` to prevent N+1 queries
+  - CORRECT: `User.includes(:sessions).where(role: :admin)`
+  - WRONG: iterating over users and calling `user.sessions` inside the loop
 
 ---
 
@@ -385,6 +414,11 @@ end
 - ALL routes MUST be defined inside `namespace :api` > `namespace :v1`
 - ALWAYS use `resources` or `resource` — NEVER define routes manually with `get`, `post`, `delete`, etc.
 - Use `only:` or `except:` to restrict to the actions actually implemented
+- Every route that returns a list of data (index actions) MUST implement pagination using the `pagy` gem — call `pagy(:offset, collection)` in the controller and include `pagination` metadata in the JBuilder response. Never return unbounded collections.
+- Every DELETE endpoint MUST explicitly state in its rswag `description` whether it is a **soft delete** or **hard delete**:
+  - **Soft delete** (master data tables, e.g. themes): set `deleted_at` timestamp — record is retained and excluded from queries. Description example: `"Soft deletes a ... by ID (sets deleted_at). Record is retained in the database and excluded from all queries."`
+  - **Hard delete** (transactional/non-master data): record is permanently removed. Description example: `"Permanently deletes a ... by ID."`
+- **Soft delete `deleted_at` column MUST use `timestamp` type** — NEVER `datetime`. Using `datetime` does not work correctly in this stack (PostgreSQL + Rails 8). Always define the migration as `t.timestamp :deleted_at` or `add_column :table, :deleted_at, :timestamp`.
 
 ---
 
@@ -416,6 +450,167 @@ bin/kamal console   # Rails console on the server
 bin/kamal logs      # Tail production logs
 bin/kamal shell     # bash on the server
 ```
+
+---
+
+## Testing & API Documentation (RSpec + rswag)
+
+This project uses **RSpec** for testing and **rswag** to generate Swagger/OpenAPI documentation from specs.
+
+### Directory structure
+
+```
+spec/
+├── factories/          # FactoryBot factories (one file per model)
+├── requests/
+│   └── api/
+│       └── v1/         # Request specs (one file per controller)
+├── support/
+│   └── request_helpers.rb
+├── rails_helper.rb
+└── swagger_helper.rb   # rswag configuration
+swagger/
+└── v1/
+    └── swagger.yaml    # Auto-generated — DO NOT edit manually
+```
+
+### rswag request spec anatomy
+
+```ruby
+require 'swagger_helper'
+
+RSpec.describe 'API V1 Users', type: :request do
+  path '/api/v1/users' do
+    post 'Create admin user' do
+      tags     'Users'
+      consumes 'application/json'
+      produces 'application/json'
+      security [ cookieAuth: [] ]
+
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        properties: {
+          user: {
+            type: :object,
+            properties: {
+              email:    { type: :string },
+              password: { type: :string }
+            },
+            required: %w[email password]
+          }
+        }
+      }
+
+      response '201', 'user created' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:body) { { user: { email: 'new@test.com', password: 'Password12345!' } } }
+        before { login_as(super_admin) }
+        schema type: :object, properties: { status: { type: :string } }
+        run_test!
+      end
+    end
+  end
+end
+```
+
+### Available helpers
+
+```ruby
+login_as(user)   # POST /api/v1/session with user credentials (sets cookie automatically)
+```
+
+### Mandatory rules
+
+- Every new endpoint MUST have a rswag request spec in `spec/requests/api/v1/`
+- Every spec MUST cover all possible response codes (success, validation failure, unauthorized, forbidden)
+- Every spec MUST require `swagger_helper` — not `rails_helper`
+- A factory MUST be created for every new model in `spec/factories/`
+- `swagger/v1/swagger.yaml` MUST be regenerated after adding or changing specs:
+  ```bash
+  SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ --format Rswag::Specs::SwaggerFormatter --order defined
+  ```
+- NEVER edit `swagger/v1/swagger.yaml` manually — it is auto-generated from specs
+- Requests to authenticated endpoints in specs MUST use `before { login_as(user) }`
+- Endpoints that require auth MUST be marked with `security [ cookieAuth: [] ]`
+
+---
+
+## Commit Message Rules
+
+All commits MUST follow the format below (reference: [Conventional Commits](https://gist.github.com/nyancodeid/63f19941c81252bb0cca9c14497cf9f7)):
+
+### Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+- **Header** is mandatory. **Scope** is optional. **Body** and **footer** are optional.
+- All lines MUST NOT exceed **100 characters**.
+
+### Commit Types
+
+| Type | Used for |
+|---|---|
+| `feat` | Introduction of new functionality |
+| `fix` | Bug corrections |
+| `refactor` | Code restructuring without feature additions or bug fixes |
+| `docs` | Documentation-only modifications |
+| `style` | Formatting changes that do not affect code logic |
+| `perf` | Performance-enhancing code changes |
+| `build` | Changes that affect the build system or external dependencies |
+| `ci` | Changes to CI configuration files and scripts |
+| `test` | Adding or correcting tests |
+
+### Subject Rules
+
+- Use **imperative present tense**: `add`, `fix`, `update` — not `added`, `fixed`, `updated`
+- Begin with a **lowercase letter**
+- **No trailing punctuation**
+
+### Body
+
+- Mirror subject conventions
+- Explain the **motivation** behind the change and contrast with prior behavior
+
+### Footer
+
+- Include breaking changes prefaced with `BREAKING CHANGE:`
+- Include GitHub issue references when applicable
+
+### Revert
+
+Reverted commits must start with `revert:` followed by the original commit header, with body:
+`This reverts commit <hash>.`
+
+### Examples
+
+```
+feat(auth): add httpOnly cookie session authentication
+
+Implements login and logout using signed httpOnly cookies instead of
+JWT in Authorization header, preventing XSS token theft.
+
+BREAKING CHANGE: clients must send cookies instead of Bearer tokens
+```
+
+```
+fix(sessions): destroy session record on logout
+```
+
+```
+refactor(repositories): extract session queries to SessionRepository
+```
+
+**Mandatory rules:**
+- ALWAYS use one of the 9 commit types listed above — no custom types
+- NEVER write subject in past tense (`added`, `fixed`) — always imperative present tense
+- NEVER exceed 100 characters per line
+- NEVER commit secrets, tokens, or credentials
 
 ---
 

@@ -19,6 +19,14 @@ class UserRepository < BaseRepository
     User.where(role: role)
   end
 
+  def list_all
+    User.order(:created_at)
+  end
+
+  def create_user(email:, password:, role:)
+    User.create!(email: email, password: password, role: role)
+  end
+
   private
 
   def model

@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
+  include Pagy::Method
 
   rescue_from ActiveRecord::RecordNotFound,        with: :not_found
   rescue_from ActiveRecord::RecordInvalid,         with: :record_invalid

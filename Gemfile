@@ -47,4 +47,20 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  gem "rspec-rails"
+  gem "factory_bot_rails"
+  gem "faker"
 end
+
+group :development, :test do
+  gem "rswag-api"
+  gem "rswag-ui"
+end
+
+group :test do
+  gem "rswag-specs"
+end
+
+# Pagination
+gem "pagy", "~> 43.5"
