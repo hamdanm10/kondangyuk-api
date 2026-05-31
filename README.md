@@ -45,6 +45,35 @@ cors:
 
 ---
 
+## API Documentation (Swagger UI)
+
+Setelah `git pull`, jalankan langkah berikut untuk melihat dokumentasi API:
+
+**1. Setup awal (hanya sekali)**
+```bash
+bin/setup
+```
+
+**2. Generate swagger.yaml dari specs**
+```bash
+SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ \
+  --format Rswag::Specs::SwaggerFormatter --order defined
+```
+
+**3. Jalankan server**
+```bash
+bin/dev
+```
+
+**4. Buka browser**
+```
+http://localhost:3000/api-docs
+```
+
+> Langkah 2 wajib dijalankan ulang setiap kali ada endpoint baru atau perubahan spec.
+
+---
+
 ## Roles
 
 | Role | Deskripsi |
