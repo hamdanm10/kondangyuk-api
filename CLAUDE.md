@@ -43,7 +43,7 @@ SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ \
   --format Rswag::Specs::SwaggerFormatter --order defined
 ```
 
-Swagger UI tersedia di `/api-docs` setelah server dijalankan.
+Swagger UI is available at `/api-docs` once the server is running.
 
 > `rails/test_unit/railtie` is intentionally commented out — the project uses RSpec instead.
 
@@ -440,26 +440,26 @@ bin/kamal shell     # bash on the server
 
 ## Testing & API Documentation (RSpec + rswag)
 
-Proyek ini menggunakan **RSpec** untuk testing dan **rswag** untuk generate dokumentasi Swagger/OpenAPI dari specs.
+This project uses **RSpec** for testing and **rswag** to generate Swagger/OpenAPI documentation from specs.
 
-### Struktur direktori
+### Directory structure
 
 ```
 spec/
-├── factories/          # FactoryBot factories (satu file per model)
+├── factories/          # FactoryBot factories (one file per model)
 ├── requests/
 │   └── api/
-│       └── v1/         # Request specs (satu file per controller)
+│       └── v1/         # Request specs (one file per controller)
 ├── support/
 │   └── request_helpers.rb
 ├── rails_helper.rb
-└── swagger_helper.rb   # Konfigurasi rswag
+└── swagger_helper.rb   # rswag configuration
 swagger/
 └── v1/
-    └── swagger.yaml    # Auto-generated — JANGAN edit manual
+    └── swagger.yaml    # Auto-generated — DO NOT edit manually
 ```
 
-### Anatomi rswag request spec
+### rswag request spec anatomy
 
 ```ruby
 require 'swagger_helper'
@@ -498,31 +498,31 @@ RSpec.describe 'API V1 Users', type: :request do
 end
 ```
 
-### Helper yang tersedia
+### Available helpers
 
 ```ruby
-login_as(user)   # POST /api/v1/session dengan kredensial user (set cookie otomatis)
+login_as(user)   # POST /api/v1/session with user credentials (sets cookie automatically)
 ```
 
 ### Mandatory rules
 
-- Setiap endpoint baru **WAJIB** memiliki rswag request spec di `spec/requests/api/v1/`
-- Setiap spec **WAJIB** mencakup semua response codes yang mungkin (sukses, validasi gagal, unauthorized, forbidden)
-- Setiap spec **WAJIB** menggunakan `swagger_helper` — bukan `rails_helper`
-- Factories **WAJIB** dibuat untuk setiap model baru di `spec/factories/`
-- `swagger/v1/swagger.yaml` **WAJIB** di-regenerate setelah menambah atau mengubah spec:
+- Every new endpoint MUST have a rswag request spec in `spec/requests/api/v1/`
+- Every spec MUST cover all possible response codes (success, validation failure, unauthorized, forbidden)
+- Every spec MUST require `swagger_helper` — not `rails_helper`
+- A factory MUST be created for every new model in `spec/factories/`
+- `swagger/v1/swagger.yaml` MUST be regenerated after adding or changing specs:
   ```bash
   SWAGGER_DRY_RUN=0 bundle exec rspec spec/requests/ --format Rswag::Specs::SwaggerFormatter --order defined
   ```
-- **JANGAN** edit `swagger/v1/swagger.yaml` secara manual — file ini auto-generated dari specs
-- Request ke authenticated endpoint dalam specs **WAJIB** menggunakan `before { login_as(user) }`
-- Endpoint yang memerlukan auth **WAJIB** ditandai dengan `security [ cookieAuth: [] ]`
+- NEVER edit `swagger/v1/swagger.yaml` manually — it is auto-generated from specs
+- Requests to authenticated endpoints in specs MUST use `before { login_as(user) }`
+- Endpoints that require auth MUST be marked with `security [ cookieAuth: [] ]`
 
 ---
 
 ## Commit Message Rules
 
-Semua commit MUST mengikuti format berikut (referensi: [Conventional Commits](https://gist.github.com/nyancodeid/63f19941c81252bb0cca9c14497cf9f7)):
+All commits MUST follow the format below (reference: [Conventional Commits](https://gist.github.com/nyancodeid/63f19941c81252bb0cca9c14497cf9f7)):
 
 ### Format
 
@@ -534,45 +534,45 @@ Semua commit MUST mengikuti format berikut (referensi: [Conventional Commits](ht
 <footer>
 ```
 
-- **Header** wajib ada. **Scope** opsional. **Body** dan **footer** opsional.
-- Semua baris TIDAK BOLEH melebihi **100 karakter**.
+- **Header** is mandatory. **Scope** is optional. **Body** and **footer** are optional.
+- All lines MUST NOT exceed **100 characters**.
 
-### Tipe Commit
+### Commit Types
 
-| Tipe | Digunakan untuk |
+| Type | Used for |
 |---|---|
-| `feat` | Penambahan fitur baru |
-| `fix` | Perbaikan bug |
-| `refactor` | Restrukturisasi kode tanpa menambah fitur atau memperbaiki bug |
-| `docs` | Perubahan dokumentasi saja |
-| `style` | Perubahan formatting yang tidak mempengaruhi logika kode |
-| `perf` | Perubahan kode untuk meningkatkan performa |
-| `build` | Perubahan yang mempengaruhi build system atau dependency eksternal |
-| `ci` | Perubahan konfigurasi CI |
-| `test` | Menambah atau memperbaiki test |
+| `feat` | Introduction of new functionality |
+| `fix` | Bug corrections |
+| `refactor` | Code restructuring without feature additions or bug fixes |
+| `docs` | Documentation-only modifications |
+| `style` | Formatting changes that do not affect code logic |
+| `perf` | Performance-enhancing code changes |
+| `build` | Changes that affect the build system or external dependencies |
+| `ci` | Changes to CI configuration files and scripts |
+| `test` | Adding or correcting tests |
 
-### Aturan Subject
+### Subject Rules
 
-- Gunakan **imperative present tense**: `add`, `fix`, `update` — bukan `added`, `fixed`, `updated`
-- Awali dengan **huruf kecil**
-- **Tanpa tanda titik** di akhir
+- Use **imperative present tense**: `add`, `fix`, `update` — not `added`, `fixed`, `updated`
+- Begin with a **lowercase letter**
+- **No trailing punctuation**
 
 ### Body
 
-- Gunakan konvensi yang sama dengan subject
-- Jelaskan **motivasi** perubahan dan kontras dengan perilaku sebelumnya
+- Mirror subject conventions
+- Explain the **motivation** behind the change and contrast with prior behavior
 
 ### Footer
 
-- Cantumkan breaking changes dengan prefix `BREAKING CHANGE:`
-- Cantumkan referensi issue GitHub jika ada
+- Include breaking changes prefaced with `BREAKING CHANGE:`
+- Include GitHub issue references when applicable
 
 ### Revert
 
-Commit revert diawali dengan `revert:` diikuti header commit asli, dengan body:
+Reverted commits must start with `revert:` followed by the original commit header, with body:
 `This reverts commit <hash>.`
 
-### Contoh
+### Examples
 
 ```
 feat(auth): add httpOnly cookie session authentication
