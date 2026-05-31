@@ -7,6 +7,12 @@ module Api
         render_success(nil, :ok)
       end
 
+      def show
+        result = Themes::ShowService.call(id: params[:id])
+        @theme = result.data[:theme]
+        render_success(nil, :ok)
+      end
+
       def create
         result = Themes::CreateService.call(params: theme_params)
         if result.success?

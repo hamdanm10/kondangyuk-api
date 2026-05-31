@@ -3,7 +3,7 @@ require 'swagger_helper'
 RSpec.describe 'API V1 Themes', type: :request do
   path '/api/v1/themes' do
     get 'List all themes' do
-      tags        'Super Admin'
+      tags        'Super Admin | Themes'
       produces    'application/json'
       description 'Returns all themes with pagination. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
@@ -70,7 +70,7 @@ RSpec.describe 'API V1 Themes', type: :request do
     end
 
     post 'Create theme' do
-      tags        'Super Admin'
+      tags        'Super Admin | Themes'
       consumes    'application/json'
       produces    'application/json'
       description 'Creates a new theme. Accessible by super_admin only.'
@@ -143,8 +143,71 @@ RSpec.describe 'API V1 Themes', type: :request do
   end
 
   path '/api/v1/themes/{id}' do
+    get 'Show theme' do
+      tags        'Super Admin | Themes'
+      produces    'application/json'
+      description 'Returns a single theme by ID. Accessible by super_admin only.'
+      security    [ cookieAuth: [] ]
+
+      parameter name: :id, in: :path, type: :integer, required: true,
+                description: 'Theme ID'
+
+      response '200', 'theme returned' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:theme) { create(:theme) }
+        let(:id) { theme.id }
+        before { login_as(super_admin) }
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'success' },
+                 data: {
+                   type: :object,
+                   properties: {
+                     theme: {
+                       type: :object,
+                       properties: {
+                         id:         { type: :integer },
+                         name:       { type: :string },
+                         created_at: { type: :string, format: 'date-time' },
+                         updated_at: { type: :string, format: 'date-time' }
+                       }
+                     }
+                   }
+                 }
+               }
+
+        run_test!
+      end
+
+      response '404', 'theme not found' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:id) { 0 }
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '401', 'not authenticated' do
+        let(:id) { 1 }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        let(:id) { 1 }
+        before { login_as(admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+    end
+
     delete 'Delete theme' do
-      tags        'Super Admin'
+      tags        'Super Admin | Themes'
       produces    'application/json'
       description 'Deletes a theme by ID. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
