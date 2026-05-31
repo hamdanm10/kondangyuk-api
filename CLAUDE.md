@@ -419,6 +419,85 @@ bin/kamal shell     # bash on the server
 
 ---
 
+## Commit Message Rules
+
+Semua commit MUST mengikuti format berikut (referensi: [Conventional Commits](https://gist.github.com/nyancodeid/63f19941c81252bb0cca9c14497cf9f7)):
+
+### Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+- **Header** wajib ada. **Scope** opsional. **Body** dan **footer** opsional.
+- Semua baris TIDAK BOLEH melebihi **100 karakter**.
+
+### Tipe Commit
+
+| Tipe | Digunakan untuk |
+|---|---|
+| `feat` | Penambahan fitur baru |
+| `fix` | Perbaikan bug |
+| `refactor` | Restrukturisasi kode tanpa menambah fitur atau memperbaiki bug |
+| `docs` | Perubahan dokumentasi saja |
+| `style` | Perubahan formatting yang tidak mempengaruhi logika kode |
+| `perf` | Perubahan kode untuk meningkatkan performa |
+| `build` | Perubahan yang mempengaruhi build system atau dependency eksternal |
+| `ci` | Perubahan konfigurasi CI |
+| `test` | Menambah atau memperbaiki test |
+
+### Aturan Subject
+
+- Gunakan **imperative present tense**: `add`, `fix`, `update` — bukan `added`, `fixed`, `updated`
+- Awali dengan **huruf kecil**
+- **Tanpa tanda titik** di akhir
+
+### Body
+
+- Gunakan konvensi yang sama dengan subject
+- Jelaskan **motivasi** perubahan dan kontras dengan perilaku sebelumnya
+
+### Footer
+
+- Cantumkan breaking changes dengan prefix `BREAKING CHANGE:`
+- Cantumkan referensi issue GitHub jika ada
+
+### Revert
+
+Commit revert diawali dengan `revert:` diikuti header commit asli, dengan body:
+`This reverts commit <hash>.`
+
+### Contoh
+
+```
+feat(auth): add httpOnly cookie session authentication
+
+Implements login and logout using signed httpOnly cookies instead of
+JWT in Authorization header, preventing XSS token theft.
+
+BREAKING CHANGE: clients must send cookies instead of Bearer tokens
+```
+
+```
+fix(sessions): destroy session record on logout
+```
+
+```
+refactor(repositories): extract session queries to SessionRepository
+```
+
+**Mandatory rules:**
+- ALWAYS use one of the 9 commit types listed above — no custom types
+- NEVER write subject in past tense (`added`, `fixed`) — always imperative present tense
+- NEVER exceed 100 characters per line
+- NEVER commit secrets, tokens, or credentials
+
+---
+
 ## General Rules (Non-Negotiable)
 
 1. **New file** → confirm it follows the naming convention and is in the correct folder before creating it.
