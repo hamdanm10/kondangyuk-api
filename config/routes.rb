@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       resource  :profile, only: [ :show ]
       resources :users,   only: [ :index, :create ]
       resources :themes,  only: [ :index, :show, :create, :update, :destroy ]
+      resources :tiers,   only: [ :index, :show, :create, :update, :destroy ]
     end
   end
 end
