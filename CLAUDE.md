@@ -418,6 +418,7 @@ end
 - Every DELETE endpoint MUST explicitly state in its rswag `description` whether it is a **soft delete** or **hard delete**:
   - **Soft delete** (master data tables, e.g. themes): set `deleted_at` timestamp — record is retained and excluded from queries. Description example: `"Soft deletes a ... by ID (sets deleted_at). Record is retained in the database and excluded from all queries."`
   - **Hard delete** (transactional/non-master data): record is permanently removed. Description example: `"Permanently deletes a ... by ID."`
+- **Soft delete `deleted_at` column MUST use `timestamp` type** — NEVER `datetime`. Using `datetime` does not work correctly in this stack (PostgreSQL + Rails 8). Always define the migration as `t.timestamp :deleted_at` or `add_column :table, :deleted_at, :timestamp`.
 
 ---
 
