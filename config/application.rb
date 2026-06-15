@@ -18,6 +18,10 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Rack middleware referenced while building the stack at boot — required eagerly and kept out of
+# the Zeitwerk autoloader (see the `middleware` ignore on autoload_lib below).
+require_relative "../lib/middleware/bot_guard"
+
 module KondangyukApi
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -26,7 +30,7 @@ module KondangyukApi
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets tasks])
+    config.autoload_lib(ignore: %w[assets tasks middleware])
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -48,5 +52,14 @@ module KondangyukApi
     # Serve Active Storage files through stable, non-expiring proxy URLs so media
     # referenced inside documents stays shareable (public customer pages, snapshots).
     config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
+    # Keep the API's IP content (documents + media) out of search engines and AI
+    # training crawlers on every response, including Active Storage.
+    config.action_dispatch.default_headers = config.action_dispatch.default_headers.merge(
+      "X-Robots-Tag" => "noindex, nofollow, noai, noimageindex"
+    )
+
+    # Rate-limit and block scraper/AI bots on public + asset routes (see lib/middleware/bot_guard.rb).
+    config.middleware.use BotGuard
   end
 end
