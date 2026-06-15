@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_31_154201) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_093000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_154201) do
     t.bigint "user_id", null: false
     t.index ["token"], name: "index_sessions_on_token", unique: true
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "template_documents", force: :cascade do |t|
+    t.text "document", null: false
+    t.jsonb "meta", default: {}, null: false
+    t.bigint "template_id", null: false
+    t.index ["template_id"], name: "index_template_documents_on_template_id", unique: true
+  end
+
+  create_table "templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "created_by_user_id", null: false
+    t.datetime "deleted_at", precision: nil
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "published_at", precision: nil
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_user_id"], name: "index_templates_on_created_by_user_id"
+    t.index ["slug"], name: "index_templates_on_slug", unique: true
   end
 
   create_table "themes", force: :cascade do |t|
@@ -50,4 +70,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_31_154201) do
   end
 
   add_foreign_key "sessions", "users"
+  add_foreign_key "template_documents", "templates"
+  add_foreign_key "templates", "users", column: "created_by_user_id"
 end

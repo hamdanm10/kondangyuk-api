@@ -12,6 +12,9 @@ Rails.application.routes.draw do
       resources :users,   only: [ :index, :create ]
       resources :themes,  only: [ :index, :show, :create, :update, :destroy ]
       resources :tiers,   only: [ :index, :show, :create, :update, :destroy ]
+      resources :templates, only: [ :index, :show, :create, :update, :destroy ] do
+        resource :document, only: [ :show, :update, :destroy ], controller: "template_documents"
+      end
     end
   end
 end
