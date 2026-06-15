@@ -42,6 +42,904 @@ servers:
 - url: http://localhost:3000
   description: Development
 paths:
+  "/api/v1/invitations/{invitation_id}/document/media":
+    parameters:
+    - name: invitation_id
+      in: path
+      required: true
+      description: Invitation ID or slug
+      schema:
+        type: string
+    get:
+      summary: List document media
+      tags:
+      - Admin | Media
+      description: Lists media attached to an invitation document (proxy URLs). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: media returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: invitation or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Upload document media
+      tags:
+      - Admin | Media
+      description: Uploads a media file (image/audio/video) to an invitation document
+        and returns its stable proxy URL. Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: media uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: unsupported media type
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: file
+        required: true
+  "/api/v1/invitations/{invitation_id}/document/media/{id}":
+    parameters:
+    - name: invitation_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: id
+      in: path
+      required: true
+      description: Media (attachment) ID
+      schema:
+        type: integer
+    delete:
+      summary: Delete document media
+      tags:
+      - Admin | Media
+      description: Permanently deletes (purges) a media attachment by ID — hard delete.
+        Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: media deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: media not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/invitations/{invitation_id}/document":
+    parameters:
+    - name: invitation_id
+      in: path
+      required: true
+      description: Invitation ID or slug
+      schema:
+        type: string
+    get:
+      summary: Show invitation document
+      tags:
+      - Admin | Invitation Documents
+      description: Returns the invitation document (meta + MDX snapshot). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: document returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: invitation or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update invitation document
+      tags:
+      - Admin | Invitation Documents
+      description: Updates the invitation document (meta + MDX). Accessible by admin
+        or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: document updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: invitation or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invitation_document:
+                  type: object
+                  properties:
+                    meta:
+                      type: object
+                    document:
+                      type: string
+                  required:
+                  - document
+        required: true
+    delete:
+      summary: Delete invitation document
+      tags:
+      - Admin | Invitation Documents
+      description: Permanently deletes an invitation document (hard delete). The invitation_documents
+        table has no deleted_at column. Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: document deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: invitation or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/invitations/{invitation_id}/thumbnail":
+    parameters:
+    - name: invitation_id
+      in: path
+      required: true
+      description: Invitation ID or slug
+      schema:
+        type: string
+    get:
+      summary: Show thumbnail
+      tags:
+      - Admin | Thumbnails
+      description: Returns the invitation thumbnail proxy URL (or null). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: thumbnail returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: invitation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    put:
+      summary: Upload thumbnail
+      tags:
+      - Admin | Thumbnails
+      description: Uploads/replaces the invitation thumbnail (image only). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: thumbnail uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: not an image
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: file
+        required: true
+    delete:
+      summary: Remove thumbnail
+      tags:
+      - Admin | Thumbnails
+      description: Removes (purges) the invitation thumbnail — hard delete. Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: thumbnail removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/invitations":
+    get:
+      summary: List all invitations
+      tags:
+      - Admin | Invitations
+      description: Returns all invitations with pagination. Accessible by admin or
+        super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: invitations returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Create invitation (snapshot of the order template)
+      tags:
+      - Admin | Invitations
+      description: Creates an invitation as an immutable snapshot of the order template
+        document (meta + MDX copied into invitation_document). name/description default
+        to the template's when omitted. Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: invitation created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: order not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invitation:
+                  type: object
+                  properties:
+                    order_id:
+                      type: integer
+                    slug:
+                      type: string
+                      example: andi-and-budi
+                    name:
+                      type: string
+                      nullable: true
+                    description:
+                      type: string
+                      nullable: true
+                    published_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    expires_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                  required:
+                  - order_id
+                  - slug
+        required: true
+  "/api/v1/invitations/{id}":
+    get:
+      summary: Show invitation
+      tags:
+      - Admin | Invitations
+      description: Returns a single invitation by ID or slug. Accessible by admin
+        or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Invitation ID or slug
+        schema:
+          type: string
+      responses:
+        '200':
+          description: invitation returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: invitation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update invitation
+      tags:
+      - Admin | Invitations
+      description: Updates invitation metadata by ID or slug. Accessible by admin
+        or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: invitation updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: invitation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                invitation:
+                  type: object
+                  properties:
+                    slug:
+                      type: string
+                    name:
+                      type: string
+                    description:
+                      type: string
+                      nullable: true
+                    published_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    expires_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                  required:
+                  - slug
+                  - name
+        required: true
+    delete:
+      summary: Delete invitation
+      tags:
+      - Admin | Invitations
+      description: Permanently deletes an invitation by ID or slug (hard delete, cascades
+        to its document). Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: invitation deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: invitation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/orders":
+    get:
+      summary: List all orders
+      tags:
+      - Admin | Orders
+      description: Returns all orders with pagination. Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: Items per page
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: orders returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      orders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            price:
+                              type: string
+                            status:
+                              type: string
+                              example: pending
+                            template:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                slug:
+                                  type: string
+                                name:
+                                  type: string
+                            created_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Create order
+      tags:
+      - Admin | Orders
+      description: Creates an order for a template (status defaults to pending). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      order:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          price:
+                            type: string
+                          status:
+                            type: string
+                          template:
+                            type: object
+                          created_at:
+                            type: string
+                            format: date-time
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order:
+                  type: object
+                  properties:
+                    template_id:
+                      type: integer
+                    price:
+                      type: number
+                      example: 150000
+                    status:
+                      type: string
+                      enum:
+                      - pending
+                      - working
+                      - review
+                      - completed
+                      example: pending
+                  required:
+                  - template_id
+                  - price
+        required: true
+  "/api/v1/orders/{id}":
+    get:
+      summary: Show order
+      tags:
+      - Admin | Orders
+      description: Returns a single order by ID. Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: order returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: order not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update order
+      tags:
+      - Admin | Orders
+      description: Updates an order (price and/or status) by ID. Accessible by admin
+        or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: order updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: invalid status
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: order not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order:
+                  type: object
+                  properties:
+                    template_id:
+                      type: integer
+                    price:
+                      type: number
+                    status:
+                      type: string
+                      enum:
+                      - pending
+                      - working
+                      - review
+                      - completed
+        required: true
+    delete:
+      summary: Delete order
+      tags:
+      - Admin | Orders
+      description: Permanently deletes an order by ID (hard delete). Accessible by
+        admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: order deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: order not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/profile":
     get:
       summary: Get own profile
@@ -87,6 +985,71 @@ paths:
                     example: fail
                   data:
                     type: object
+  "/api/v1/public/invitations/{slug}":
+    get:
+      summary: Show published invitation (public customer page)
+      tags:
+      - Public | Invitations
+      description: Public customer page — returns a published, non-expired invitation
+        by slug together with its document (meta + MDX) and thumbnail URL. No authentication
+        required. Unpublished or expired invitations return 404.
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        description: Invitation slug
+        schema:
+          type: string
+      responses:
+        '200':
+          description: invitation returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      invitation:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                          published_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                          expires_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                          thumbnail_url:
+                            type: string
+                            nullable: true
+                          document:
+                            type: object
+                            properties:
+                              meta:
+                                type: object
+                              document:
+                                type: string
+        '404':
+          description: expired invitation
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/session":
     post:
       summary: Login
@@ -157,6 +1120,928 @@ paths:
       responses:
         '204':
           description: logout successful
+  "/api/v1/templates/{template_id}/document/media":
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      description: Template ID or slug
+      schema:
+        type: string
+    get:
+      summary: List document media
+      tags:
+      - Admin | Media
+      description: Lists media attached to a template document (proxy URLs). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: media returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: template or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Upload document media
+      tags:
+      - Admin | Media
+      description: Uploads a media file (image/audio/video) to a template document
+        and returns its stable proxy URL to embed in the document meta DSL. Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: media uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: unsupported media type
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: file
+        required: true
+  "/api/v1/templates/{template_id}/document/media/{id}":
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: id
+      in: path
+      required: true
+      description: Media (attachment) ID
+      schema:
+        type: integer
+    delete:
+      summary: Delete document media
+      tags:
+      - Admin | Media
+      description: Permanently deletes (purges) a media attachment by ID — hard delete.
+        Accessible by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: media deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: media not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/templates/{template_id}/document":
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      description: Template ID or slug
+      schema:
+        type: string
+    get:
+      summary: Show template document
+      tags:
+      - Super Admin | Template Documents
+      description: Returns the document (frontmatter meta + raw MDX) for a template,
+        looked up by template ID or slug. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: document returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      document:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          template_id:
+                            type: integer
+                          meta:
+                            type: object
+                          document:
+                            type: string
+        '404':
+          description: template or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update template document
+      tags:
+      - Super Admin | Template Documents
+      description: Updates the document (meta + MDX) for a template, looked up by
+        template ID or slug. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: document updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      document:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          template_id:
+                            type: integer
+                          meta:
+                            type: object
+                          document:
+                            type: string
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: template or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                template_document:
+                  type: object
+                  properties:
+                    meta:
+                      type: object
+                      example:
+                        title: Updated
+                    document:
+                      type: string
+                      example: |-
+                        ---
+                        title: Updated
+                        ---
+                        # Updated
+                  required:
+                  - document
+        required: true
+    delete:
+      summary: Delete template document
+      tags:
+      - Super Admin | Template Documents
+      description: Permanently deletes a template document (hard delete). The template_documents
+        table has no deleted_at column. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: document deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+        '404':
+          description: template or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/templates/{template_id}/thumbnail":
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      description: Template ID or slug
+      schema:
+        type: string
+    get:
+      summary: Show thumbnail
+      tags:
+      - Admin | Thumbnails
+      description: Returns the template thumbnail proxy URL (or null). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: thumbnail returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '404':
+          description: template not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    put:
+      summary: Upload thumbnail
+      tags:
+      - Admin | Thumbnails
+      description: Uploads/replaces the template thumbnail (image only). Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: thumbnail uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '422':
+          description: not an image
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: file
+        required: true
+    delete:
+      summary: Remove thumbnail
+      tags:
+      - Admin | Thumbnails
+      description: Removes (purges) the template thumbnail — hard delete. Accessible
+        by admin or super_admin.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: thumbnail removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/templates":
+    get:
+      summary: List all templates
+      tags:
+      - Super Admin | Templates
+      description: Returns all templates with pagination. Accessible by super_admin
+        only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: 'Page number (default: 1)'
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: 'Items per page (default: 10, max: 100)'
+        schema:
+          type: integer
+      - name: theme_id
+        in: query
+        required: false
+        description: Filter by theme id (templates having that theme)
+        schema:
+          type: integer
+      - name: tier_id
+        in: query
+        required: false
+        description: Filter by tier id
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: templates returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      templates:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            slug:
+                              type: string
+                            name:
+                              type: string
+                            description:
+                              type: string
+                              nullable: true
+                            published_at:
+                              type: string
+                              format: date-time
+                              nullable: true
+                            created_at:
+                              type: string
+                              format: date-time
+                            themes:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  name:
+                                    type: string
+                            tier:
+                              type: object
+                              nullable: true
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                      pagination:
+                        type: object
+                        properties:
+                          current_page:
+                            type: integer
+                            example: 1
+                          total_pages:
+                            type: integer
+                            example: 1
+                          total_count:
+                            type: integer
+                            example: 3
+                          prev_page:
+                            type: integer
+                            nullable: true
+                            example:
+                          next_page:
+                            type: integer
+                            nullable: true
+                            example:
+                          limit:
+                            type: integer
+                            example: 10
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    post:
+      summary: Create template
+      tags:
+      - Super Admin | Templates
+      description: Creates a template together with its document (atomic). The MDX
+        document is stored as-is and rendered by the client. created_by_user is taken
+        from the authenticated user. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '201':
+          description: template created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      template:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                          published_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                          created_at:
+                            type: string
+                            format: date-time
+                          themes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                          tier:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                template:
+                  type: object
+                  properties:
+                    slug:
+                      type: string
+                      example: wedding-classic
+                    name:
+                      type: string
+                      example: Wedding Classic
+                    description:
+                      type: string
+                      nullable: true
+                      example: A classic theme
+                    published_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    meta:
+                      type: object
+                      example:
+                        title: Wedding Classic
+                    document:
+                      type: string
+                      example: |-
+                        ---
+                        title: Wedding
+                        ---
+                        # Hello
+                    theme_ids:
+                      type: array
+                      items:
+                        type: integer
+                      example:
+                      - 1
+                      - 2
+                    tier_id:
+                      type: integer
+                      nullable: true
+                      example: 1
+                  required:
+                  - slug
+                  - name
+                  - document
+        required: true
+  "/api/v1/templates/{id}":
+    get:
+      summary: Show template
+      tags:
+      - Super Admin | Templates
+      description: Returns a single template (metadata only) by ID or slug. The document
+        detail is fetched via /api/v1/templates/{id}/document. Accessible by super_admin
+        only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Template ID or slug
+        schema:
+          type: string
+      responses:
+        '200':
+          description: template returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      template:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                          published_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                          themes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                          tier:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+        '404':
+          description: template not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update template
+      tags:
+      - Super Admin | Templates
+      description: Updates template metadata by ID or slug. The document is updated
+        via its own endpoint. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Template ID or slug
+        schema:
+          type: string
+      responses:
+        '200':
+          description: template updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      template:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                          published_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                          themes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                          tier:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+        '422':
+          description: validation failed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: template not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                template:
+                  type: object
+                  properties:
+                    slug:
+                      type: string
+                      example: wedding-modern
+                    name:
+                      type: string
+                      example: Wedding Modern
+                    description:
+                      type: string
+                      nullable: true
+                    published_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                    theme_ids:
+                      type: array
+                      items:
+                        type: integer
+                      example:
+                      - 1
+                      - 2
+                    tier_id:
+                      type: integer
+                      nullable: true
+                      example: 1
+                  required:
+                  - slug
+                  - name
+        required: true
+    delete:
+      summary: Delete template
+      tags:
+      - Super Admin | Templates
+      description: Soft deletes a template by ID or slug (sets deleted_at). Record
+        is retained in the database and excluded from all queries. Accessible by super_admin
+        only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Template ID or slug
+        schema:
+          type: string
+      responses:
+        '200':
+          description: template deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+        '404':
+          description: template not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/themes":
     get:
       summary: List all themes

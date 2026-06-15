@@ -1,0 +1,52 @@
+class TemplateRepository < BaseRepository
+  def list_all(theme_id: nil, tier_id: nil)
+    scope = Template.active.order(:name)
+    scope = scope.where(id: TemplateTheme.where(theme_id: theme_id).select(:template_id)) if theme_id.present?
+    scope = scope.where(id: TemplateTier.where(tier_id: tier_id).select(:template_id))    if tier_id.present?
+    scope.includes(:created_by_user, :themes, :tier)
+  end
+
+  def find_by_id_or_slug(value)
+    scope = Template.active.includes(:themes, :tier)
+    if value.to_s.match?(/\A\d+\z/)
+      scope.find(value)
+    else
+      scope.find_by!(slug: value)
+    end
+  end
+
+  def create_with_document(slug:, name:, description:, published_at:, created_by_user:, meta:, document:, themes: [], tier: nil)
+    Template.transaction do
+      template = Template.create!(
+        slug: slug,
+        name: name,
+        description: description,
+        published_at: published_at,
+        created_by_user: created_by_user
+      )
+      template.create_template_document!(meta: meta || {}, document: document)
+      template.themes = themes
+      template.tier   = tier
+      template
+    end
+  end
+
+  def update_template(template, slug:, name:, description:, published_at:, themes: [], tier: nil, sync_themes: false, sync_tier: false)
+    Template.transaction do
+      template.update!(slug: slug, name: name, description: description, published_at: published_at)
+      template.themes = themes if sync_themes
+      template.tier   = tier   if sync_tier
+      template
+    end
+  end
+
+  def soft_delete(template)
+    template.update!(deleted_at: Time.current)
+  end
+
+  private
+
+  def model
+    Template
+  end
+end

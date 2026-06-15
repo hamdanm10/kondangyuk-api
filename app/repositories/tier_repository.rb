@@ -7,6 +7,10 @@ class TierRepository < BaseRepository
     Tier.active.find(id)
   end
 
+  def find_active(id)
+    Tier.active.find_by(id: id)
+  end
+
   def create_tier(name:, price:)
     Tier.create!(name: name, price: price)
   end
