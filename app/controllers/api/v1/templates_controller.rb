@@ -2,7 +2,7 @@ module Api
   module V1
     class TemplatesController < SuperAdminApplicationController
       def index
-        result = Templates::ListService.call
+        result = Templates::ListService.call(theme_id: params[:theme_id], tier_id: params[:tier_id])
         @pagy, @templates = pagy(:offset, result.data[:collection])
         render_success(nil, :ok)
       end
@@ -41,7 +41,9 @@ module Api
       private
 
       def template_params
-        params.require(:template).permit(:slug, :name, :description, :published_at, :document, meta: {})
+        params.require(:template).permit(
+          :slug, :name, :description, :published_at, :document, :tier_id, meta: {}, theme_ids: []
+        )
       end
     end
   end

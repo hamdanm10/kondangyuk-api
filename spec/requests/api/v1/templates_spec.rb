@@ -12,6 +12,10 @@ RSpec.describe 'API V1 Templates', type: :request do
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
                 description: 'Items per page (default: 10, max: 100)'
+      parameter name: :theme_id, in: :query, type: :integer, required: false,
+                description: 'Filter by theme id (templates having that theme)'
+      parameter name: :tier_id, in: :query, type: :integer, required: false,
+                description: 'Filter by tier id'
 
       response '200', 'templates returned' do
         let(:super_admin) { create(:user, :super_admin) }
@@ -36,7 +40,18 @@ RSpec.describe 'API V1 Templates', type: :request do
                            name:         { type: :string },
                            description:  { type: :string, nullable: true },
                            published_at: { type: :string, format: 'date-time', nullable: true },
-                           created_at:   { type: :string, format: 'date-time' }
+                           created_at:   { type: :string, format: 'date-time' },
+                           themes: {
+                             type: :array,
+                             items: {
+                               type: :object,
+                               properties: { id: { type: :integer }, name: { type: :string } }
+                             }
+                           },
+                           tier: {
+                             type: :object, nullable: true,
+                             properties: { id: { type: :integer }, name: { type: :string } }
+                           }
                          }
                        }
                      },
@@ -92,7 +107,9 @@ RSpec.describe 'API V1 Templates', type: :request do
               description:  { type: :string, nullable: true, example: 'A classic theme' },
               published_at: { type: :string, format: 'date-time', nullable: true },
               meta:         { type: :object, example: { title: 'Wedding Classic' } },
-              document:     { type: :string, example: "---\ntitle: Wedding\n---\n# Hello" }
+              document:     { type: :string, example: "---\ntitle: Wedding\n---\n# Hello" },
+              theme_ids:    { type: :array, items: { type: :integer }, example: [ 1, 2 ] },
+              tier_id:      { type: :integer, nullable: true, example: 1 }
             },
             required: %w[slug name document]
           }
@@ -101,9 +118,12 @@ RSpec.describe 'API V1 Templates', type: :request do
 
       response '201', 'template created' do
         let(:super_admin) { create(:user, :super_admin) }
+        let(:theme) { create(:theme) }
+        let(:tier)  { create(:tier) }
         let(:body) do
           { template: { slug: 'wedding-classic', name: 'Wedding Classic',
-                        meta: { title: 'Wedding Classic' }, document: "---\ntitle: Wedding\n---\n# Hello" } }
+                        meta: { title: 'Wedding Classic' }, document: "---\ntitle: Wedding\n---\n# Hello",
+                        theme_ids: [ theme.id ], tier_id: tier.id } }
         end
         before { login_as(super_admin) }
 
@@ -121,7 +141,18 @@ RSpec.describe 'API V1 Templates', type: :request do
                          name:         { type: :string },
                          description:  { type: :string, nullable: true },
                          published_at: { type: :string, format: 'date-time', nullable: true },
-                         created_at:   { type: :string, format: 'date-time' }
+                         created_at:   { type: :string, format: 'date-time' },
+                         themes: {
+                           type: :array,
+                           items: {
+                             type: :object,
+                             properties: { id: { type: :integer }, name: { type: :string } }
+                           }
+                         },
+                         tier: {
+                           type: :object, nullable: true,
+                           properties: { id: { type: :integer }, name: { type: :string } }
+                         }
                        }
                      }
                    }
@@ -190,7 +221,18 @@ RSpec.describe 'API V1 Templates', type: :request do
                          description:  { type: :string, nullable: true },
                          published_at: { type: :string, format: 'date-time', nullable: true },
                          created_at:   { type: :string, format: 'date-time' },
-                         updated_at:   { type: :string, format: 'date-time' }
+                         updated_at:   { type: :string, format: 'date-time' },
+                         themes: {
+                           type: :array,
+                           items: {
+                             type: :object,
+                             properties: { id: { type: :integer }, name: { type: :string } }
+                           }
+                         },
+                         tier: {
+                           type: :object, nullable: true,
+                           properties: { id: { type: :integer }, name: { type: :string } }
+                         }
                        }
                      }
                    }
@@ -245,7 +287,9 @@ RSpec.describe 'API V1 Templates', type: :request do
               slug:         { type: :string, example: 'wedding-modern' },
               name:         { type: :string, example: 'Wedding Modern' },
               description:  { type: :string, nullable: true },
-              published_at: { type: :string, format: 'date-time', nullable: true }
+              published_at: { type: :string, format: 'date-time', nullable: true },
+              theme_ids:    { type: :array, items: { type: :integer }, example: [ 1, 2 ] },
+              tier_id:      { type: :integer, nullable: true, example: 1 }
             },
             required: %w[slug name]
           }
@@ -256,7 +300,12 @@ RSpec.describe 'API V1 Templates', type: :request do
         let(:super_admin) { create(:user, :super_admin) }
         let(:template) { create(:template) }
         let(:id) { template.id }
-        let(:body) { { template: { slug: 'wedding-modern', name: 'Wedding Modern' } } }
+        let(:theme) { create(:theme) }
+        let(:tier)  { create(:tier) }
+        let(:body) do
+          { template: { slug: 'wedding-modern', name: 'Wedding Modern',
+                        theme_ids: [ theme.id ], tier_id: tier.id } }
+        end
         before { login_as(super_admin) }
 
         schema type: :object,
@@ -274,7 +323,18 @@ RSpec.describe 'API V1 Templates', type: :request do
                          description:  { type: :string, nullable: true },
                          published_at: { type: :string, format: 'date-time', nullable: true },
                          created_at:   { type: :string, format: 'date-time' },
-                         updated_at:   { type: :string, format: 'date-time' }
+                         updated_at:   { type: :string, format: 'date-time' },
+                         themes: {
+                           type: :array,
+                           items: {
+                             type: :object,
+                             properties: { id: { type: :integer }, name: { type: :string } }
+                           }
+                         },
+                         tier: {
+                           type: :object, nullable: true,
+                           properties: { id: { type: :integer }, name: { type: :string } }
+                         }
                        }
                      }
                    }
@@ -386,6 +446,65 @@ RSpec.describe 'API V1 Templates', type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body).dig('data', 'template', 'slug')).to eq('wedding-classic')
+    end
+  end
+
+  describe 'classification' do
+    let(:super_admin) { create(:user, :super_admin) }
+    let(:json_headers) { { 'ACCEPT' => 'application/json' } }
+    before { login_as(super_admin) }
+
+    it 'syncs themes and tier on update and embeds them in the response' do
+      template = create(:template)
+      themes   = create_list(:theme, 2)
+      tier     = create(:tier)
+
+      patch "/api/v1/templates/#{template.id}", headers: json_headers,
+            params: { template: { slug: template.slug, name: template.name,
+                                  theme_ids: themes.map(&:id), tier_id: tier.id } }
+
+      expect(response).to have_http_status(:ok)
+      data = JSON.parse(response.body).dig('data', 'template')
+      expect(data['themes'].map { |t| t['id'] }).to match_array(themes.map(&:id))
+      expect(data.dig('tier', 'id')).to eq(tier.id)
+      expect(template.reload.tier).to eq(tier)
+    end
+
+    it 'returns 422 when the tier_id is invalid' do
+      template = create(:template)
+
+      patch "/api/v1/templates/#{template.id}", headers: json_headers,
+            params: { template: { slug: template.slug, name: template.name, tier_id: 999_999 } }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).dig('data', 'tier_id')).to be_present
+    end
+
+    it 'returns 422 when a theme_id is invalid' do
+      template = create(:template)
+
+      patch "/api/v1/templates/#{template.id}", headers: json_headers,
+            params: { template: { slug: template.slug, name: template.name, theme_ids: [ 999_999 ] } }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).dig('data', 'theme_ids')).to be_present
+    end
+
+    it 'filters the index by theme_id and tier_id (AND)' do
+      theme = create(:theme)
+      tier  = create(:tier)
+      matching = create(:template)
+      matching.themes = [ theme ]
+      matching.tier   = tier
+      other = create(:template)
+      other.themes = [ create(:theme) ]
+      other.tier   = create(:tier)
+
+      get '/api/v1/templates', headers: json_headers, params: { theme_id: theme.id, tier_id: tier.id }
+
+      expect(response).to have_http_status(:ok)
+      ids = JSON.parse(response.body).dig('data', 'templates').map { |t| t['id'] }
+      expect(ids).to eq([ matching.id ])
     end
   end
 end

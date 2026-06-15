@@ -6,6 +6,9 @@ module Templates
     end
 
     def call
+      classification = ResolveClassificationService.call(params: @params)
+      return classification unless classification.success?
+
       template = TemplateRepository.new.create_with_document(
         slug:            @params[:slug],
         name:            @params[:name],
@@ -13,7 +16,9 @@ module Templates
         published_at:    @params[:published_at],
         created_by_user: @created_by_user,
         meta:            @params[:meta],
-        document:        @params[:document]
+        document:        @params[:document],
+        themes:          classification.data[:themes],
+        tier:            classification.data[:tier]
       )
       ServiceResult.success({ template: template })
     end

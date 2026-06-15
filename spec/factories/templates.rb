@@ -9,5 +9,12 @@ FactoryBot.define do
         create(:template_document, template: template)
       end
     end
+
+    trait :classified do
+      after(:create) do |template|
+        template.themes = create_list(:theme, 2)
+        template.tier   = create(:tier)
+      end
+    end
   end
 end

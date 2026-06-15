@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_093000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_093000) do
     t.jsonb "meta", default: {}, null: false
     t.bigint "template_id", null: false
     t.index ["template_id"], name: "index_template_documents_on_template_id", unique: true
+  end
+
+  create_table "template_themes", force: :cascade do |t|
+    t.bigint "template_id", null: false
+    t.bigint "theme_id", null: false
+    t.index ["template_id", "theme_id"], name: "index_template_themes_on_template_id_and_theme_id", unique: true
+    t.index ["template_id"], name: "index_template_themes_on_template_id"
+    t.index ["theme_id"], name: "index_template_themes_on_theme_id"
+  end
+
+  create_table "template_tiers", force: :cascade do |t|
+    t.bigint "template_id", null: false
+    t.bigint "tier_id", null: false
+    t.index ["template_id"], name: "index_template_tiers_on_template_id", unique: true
+    t.index ["tier_id"], name: "index_template_tiers_on_tier_id"
   end
 
   create_table "templates", force: :cascade do |t|
@@ -71,5 +86,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_093000) do
 
   add_foreign_key "sessions", "users"
   add_foreign_key "template_documents", "templates"
+  add_foreign_key "template_themes", "templates"
+  add_foreign_key "template_themes", "themes"
+  add_foreign_key "template_tiers", "templates"
+  add_foreign_key "template_tiers", "tiers"
   add_foreign_key "templates", "users", column: "created_by_user_id"
 end
