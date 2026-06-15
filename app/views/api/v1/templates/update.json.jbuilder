@@ -8,6 +8,7 @@ json.data do
     json.published_at @template.published_at
     json.created_at   @template.created_at
     json.updated_at   @template.updated_at
+    json.thumbnail_url @template.thumbnail.attached? ? rails_storage_proxy_url(@template.thumbnail) : nil
     json.themes @template.themes do |theme|
       json.id   theme.id
       json.name theme.name

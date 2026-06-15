@@ -1,0 +1,27 @@
+module Orders
+  class CreateService < BaseService
+    def initialize(params:)
+      @params = params
+    end
+
+    def call
+      invalid = invalid_status
+      return invalid if invalid
+
+      order = OrderRepository.new.create_order(
+        template_id: @params[:template_id],
+        price:       @params[:price],
+        status:      @params[:status]
+      )
+      ServiceResult.success({ order: order })
+    end
+
+    private
+
+    def invalid_status
+      return nil if @params[:status].blank? || Order.statuses.key?(@params[:status])
+
+      ServiceResult.failure(status: [ "is not a valid order status" ])
+    end
+  end
+end

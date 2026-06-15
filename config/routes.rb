@@ -12,8 +12,24 @@ Rails.application.routes.draw do
       resources :users,   only: [ :index, :create ]
       resources :themes,  only: [ :index, :show, :create, :update, :destroy ]
       resources :tiers,   only: [ :index, :show, :create, :update, :destroy ]
+      resources :orders, only: [ :index, :show, :create, :update, :destroy ]
+
       resources :templates, only: [ :index, :show, :create, :update, :destroy ] do
-        resource :document, only: [ :show, :update, :destroy ], controller: "template_documents"
+        resource :document, only: [ :show, :update, :destroy ], controller: "template_documents" do
+          resources :media, only: [ :index, :create, :destroy ], controller: "template_document_media"
+        end
+        resource :thumbnail, only: [ :show, :update, :destroy ], controller: "template_thumbnails"
+      end
+
+      resources :invitations, only: [ :index, :show, :create, :update, :destroy ] do
+        resource :document, only: [ :show, :update, :destroy ], controller: "invitation_documents" do
+          resources :media, only: [ :index, :create, :destroy ], controller: "invitation_document_media"
+        end
+        resource :thumbnail, only: [ :show, :update, :destroy ], controller: "invitation_thumbnails"
+      end
+
+      namespace :public do
+        resources :invitations, only: [ :show ], param: :slug
       end
     end
   end

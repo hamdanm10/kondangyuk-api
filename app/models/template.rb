@@ -1,6 +1,7 @@
 class Template < ApplicationRecord
   belongs_to :created_by_user, class_name: "User"
   has_one    :template_document, dependent: :destroy
+  has_one_attached :thumbnail
 
   has_many :template_themes, dependent: :destroy
   has_many :themes, through: :template_themes

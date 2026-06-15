@@ -44,5 +44,9 @@ module KondangyukApi
     # Enable cookie support for httpOnly session token authentication
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore, key: "_kondangyuk_session"
+
+    # Serve Active Storage files through stable, non-expiring proxy URLs so media
+    # referenced inside documents stays shareable (public customer pages, snapshots).
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
   end
 end
