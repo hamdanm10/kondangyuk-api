@@ -71,6 +71,71 @@ RSpec.describe 'API V1 Public Templates', type: :request do
     end
   end
 
+  path '/api/v1/public/templates/{slug}' do
+    get 'Show published template (public detail with document)' do
+      tags        'Public | Templates'
+      produces    'application/json'
+      description 'Public template detail — returns a published template by slug together with its ' \
+                  'document (meta + MDX) and thumbnail URL, so the client can render the content. ' \
+                  'No authentication required. Unpublished templates, or published templates without a ' \
+                  'document, return 404.'
+
+      parameter name: :slug, in: :path, type: :string, required: true, description: 'Template slug'
+
+      response '200', 'template returned' do
+        let(:slug) { create(:template, :published, :with_document, slug: 'live-detail').slug }
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'success' },
+                 data: {
+                   type: :object,
+                   properties: {
+                     template: {
+                       type: :object,
+                       properties: {
+                         id:           { type: :integer },
+                         slug:         { type: :string },
+                         name:         { type: :string },
+                         description:  { type: :string, nullable: true },
+                         published_at: { type: :string, format: 'date-time', nullable: true },
+                         thumbnail_url: { type: :string, nullable: true },
+                         themes: {
+                           type: :array,
+                           items: {
+                             type: :object,
+                             properties: { id: { type: :integer }, name: { type: :string } }
+                           }
+                         },
+                         tier: {
+                           type: :object, nullable: true,
+                           properties: { id: { type: :integer }, name: { type: :string } }
+                         },
+                         document: {
+                           type: :object,
+                           properties: { meta: { type: :object }, document: { type: :string } }
+                         }
+                       }
+                     }
+                   }
+                 }
+               }
+        run_test!
+      end
+
+      response '404', 'unpublished template' do
+        let(:slug) { create(:template, :with_document, slug: 'draft-detail').slug }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '404', 'published template without a document' do
+        let(:slug) { create(:template, :published, slug: 'no-doc').slug }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+    end
+  end
+
   describe 'visibility' do
     it 'lists only published templates and excludes drafts' do
       create(:template, :published, slug: 'live-one', name: 'Live One')
@@ -90,6 +155,15 @@ RSpec.describe 'API V1 Public Templates', type: :request do
       get '/api/v1/public/templates', headers: { 'ACCEPT' => 'application/json' }
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns the document body on a published template detail' do
+      create(:template, :published, :with_document, slug: 'render-me')
+
+      get '/api/v1/public/templates/render-me', headers: { 'ACCEPT' => 'application/json' }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).dig('data', 'template', 'document', 'document')).to be_present
     end
   end
 end

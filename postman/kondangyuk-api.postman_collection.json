@@ -1460,6 +1460,40 @@
             "description": "Public template catalog — returns published templates (those with a published_at) with pagination, optionally filtered by theme or tier. No authentication required. Unpublished/draft templates are excluded."
           },
           "response": []
+        },
+        {
+          "name": "Show published template (public detail with document)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/public/templates/:slug",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "templates",
+                ":slug"
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "my-slug",
+                  "description": "Template slug"
+                }
+              ]
+            },
+            "description": "Public template detail — returns a published template by slug together with its document (meta + MDX) and thumbnail URL, so the client can render the content. No authentication required. Unpublished templates, or published templates without a document, return 404."
+          },
+          "response": []
         }
       ]
     },

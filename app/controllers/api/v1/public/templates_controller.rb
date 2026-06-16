@@ -9,6 +9,13 @@ module Api
           @pagy, @templates = pagy(:offset, result.data[:collection])
           render_success(nil, :ok)
         end
+
+        def show
+          result = Templates::ShowPublishedService.call(slug: params[:slug])
+          @template = result.data[:template]
+          @document = result.data[:document]
+          render_success(nil, :ok)
+        end
       end
     end
   end

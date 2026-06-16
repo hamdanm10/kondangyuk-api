@@ -16,6 +16,12 @@ class TemplateRepository < BaseRepository
     end
   end
 
+  def find_published_by_slug(slug)
+    Template.active.published
+            .includes(:themes, :tier, thumbnail_attachment: :blob)
+            .find_by!(slug: slug)
+  end
+
   def create_with_document(slug:, name:, description:, published_at:, created_by_user:, meta:, document:, themes: [], tier: nil)
     Template.transaction do
       template = Template.create!(

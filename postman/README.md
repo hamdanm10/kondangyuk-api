@@ -2,7 +2,7 @@
 
 Files:
 
-- `kondangyuk-api.postman_collection.json` — the collection (50 requests, grouped by area).
+- `kondangyuk-api.postman_collection.json` — the collection (51 requests, grouped by area).
 - `kondangyuk-api.postman_environment.json` — environment with `baseUrl`, `email`, `password`.
 - `generate_collection.rb` — regenerates both from `swagger/v1/swagger.yaml`.
 

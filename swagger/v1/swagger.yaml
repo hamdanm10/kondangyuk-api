@@ -1158,6 +1158,85 @@ paths:
                           limit:
                             type: integer
                             example: 10
+  "/api/v1/public/templates/{slug}":
+    get:
+      summary: Show published template (public detail with document)
+      tags:
+      - Public | Templates
+      description: Public template detail — returns a published template by slug together
+        with its document (meta + MDX) and thumbnail URL, so the client can render
+        the content. No authentication required. Unpublished templates, or published
+        templates without a document, return 404.
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        description: Template slug
+        schema:
+          type: string
+      responses:
+        '200':
+          description: template returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      template:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          description:
+                            type: string
+                            nullable: true
+                          published_at:
+                            type: string
+                            format: date-time
+                            nullable: true
+                          thumbnail_url:
+                            type: string
+                            nullable: true
+                          themes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                          tier:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                          document:
+                            type: object
+                            properties:
+                              meta:
+                                type: object
+                              document:
+                                type: string
+        '404':
+          description: published template without a document
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/session":
     post:
       summary: Login
