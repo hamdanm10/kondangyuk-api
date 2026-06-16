@@ -12,6 +12,7 @@ class Template < ApplicationRecord
   validates :name, presence: true
 
   scope :active, -> { where(deleted_at: nil) }
+  scope :published, -> { where.not(published_at: nil) }
 
   def soft_deleted?
     deleted_at.present?

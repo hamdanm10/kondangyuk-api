@@ -4,6 +4,10 @@ FactoryBot.define do
     sequence(:name) { |n| "Template #{n}" }
     association :created_by_user, factory: :user
 
+    trait :published do
+      published_at { Time.current }
+    end
+
     trait :with_document do
       after(:create) do |template|
         create(:template_document, template: template)

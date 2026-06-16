@@ -1,6 +1,7 @@
 class TemplateRepository < BaseRepository
-  def list_all(theme_id: nil, tier_id: nil)
+  def list_all(theme_id: nil, tier_id: nil, published_only: false)
     scope = Template.active.order(:name)
+    scope = scope.published if published_only
     scope = scope.where(id: TemplateTheme.where(theme_id: theme_id).select(:template_id)) if theme_id.present?
     scope = scope.where(id: TemplateTier.where(tier_id: tier_id).select(:template_id))    if tier_id.present?
     scope.includes(:created_by_user, :themes, :tier)

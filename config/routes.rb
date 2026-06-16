@@ -30,6 +30,7 @@ Rails.application.routes.draw do
 
       namespace :public do
         resources :invitations, only: [ :show ], param: :slug
+        resources :templates, only: [ :index ]
       end
     end
   end
