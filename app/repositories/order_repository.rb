@@ -14,7 +14,9 @@ class OrderRepository < BaseRepository
   end
 
   def update_order(order, template_id:, price:, status:)
-    attrs = { template_id: template_id, price: price }
+    attrs = {}
+    attrs[:template_id] = template_id if template_id.present?
+    attrs[:price] = price if price.present?
     attrs[:status] = status if status.present?
     order.update!(attrs)
     order

@@ -178,7 +178,8 @@ RSpec.describe 'API V1 Orders', type: :request do
         let(:admin) { create(:user) }
         let(:order) { create(:order) }
         let(:id) { order.id }
-        let(:body) { { order: { template_id: order.template_id, price: 200_000, status: 'working' } } }
+        # Partial update (status only) must not clobber price/template_id.
+        let(:body) { { order: { status: 'working' } } }
         before { login_as(admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
         run_test!
