@@ -470,6 +470,26 @@ RSpec.describe 'API V1 Templates', type: :request do
       expect(template.reload.tier).to eq(tier)
     end
 
+    it 'does not clobber fields the partial payload omits' do
+      published_at = 1.day.ago.change(usec: 0)
+      template = create(:template, description: 'keep me', published_at: published_at)
+      theme    = create(:theme)
+
+      # Config-form shape: edits theme/tier, omits published_at; must stay published.
+      patch "/api/v1/templates/#{template.id}", headers: json_headers,
+            params: { template: { slug: template.slug, name: template.name,
+                                  description: 'keep me', theme_ids: [ theme.id ] } }
+      expect(response).to have_http_status(:ok)
+      expect(template.reload.published_at).to eq(published_at)
+
+      # Publish-toggle shape: edits published_at, omits description; must keep it.
+      patch "/api/v1/templates/#{template.id}", headers: json_headers,
+            params: { template: { slug: template.slug, name: template.name, published_at: nil } }
+      expect(response).to have_http_status(:ok)
+      expect(template.reload.description).to eq('keep me')
+      expect(template.themes).to contain_exactly(theme)
+    end
+
     it 'returns 422 when the tier_id is invalid' do
       template = create(:template)
 

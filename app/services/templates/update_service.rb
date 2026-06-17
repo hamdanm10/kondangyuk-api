@@ -14,14 +14,11 @@ module Templates
 
       template = repo.update_template(
         template,
-        slug:         @params[:slug],
-        name:         @params[:name],
-        description:  @params[:description],
-        published_at: @params[:published_at],
-        themes:       classification.data[:themes],
-        tier:         classification.data[:tier],
-        sync_themes:  classification.data[:sync_themes],
-        sync_tier:    classification.data[:sync_tier]
+        attrs:       @params.slice(:slug, :name, :description, :published_at),
+        themes:      classification.data[:themes],
+        tier:        classification.data[:tier],
+        sync_themes: classification.data[:sync_themes],
+        sync_tier:   classification.data[:sync_tier]
       )
       ServiceResult.success({ template: template })
     end

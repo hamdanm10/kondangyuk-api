@@ -38,9 +38,12 @@ class TemplateRepository < BaseRepository
     end
   end
 
-  def update_template(template, slug:, name:, description:, published_at:, themes: [], tier: nil, sync_themes: false, sync_tier: false)
+  # Scalar columns use PATCH semantics: only keys present in `attrs` are written, so a
+  # partial payload (e.g. the publish toggle, or the config form omitting published_at)
+  # never clobbers fields it didn't send. Themes/tier follow the same rule via sync_*.
+  def update_template(template, attrs:, themes: [], tier: nil, sync_themes: false, sync_tier: false)
     Template.transaction do
-      template.update!(slug: slug, name: name, description: description, published_at: published_at)
+      template.update!(attrs)
       template.themes = themes if sync_themes
       template.tier   = tier   if sync_tier
       template
