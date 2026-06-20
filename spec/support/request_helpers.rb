@@ -1,6 +1,6 @@
 module RequestHelpers
   def login_as(user)
-    post '/api/v1/session',
+    post '/api/v1/guest/session',
          params: { session: { email: user.email, password: user.password } },
          as: :json
   end

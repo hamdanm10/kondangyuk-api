@@ -2,7 +2,7 @@
 # Active Storage media/thumbnail proxy routes) from scraping: it blocks known AI/crawler User-Agents
 # and rate-limits per IP. Only protected paths are inspected; everything else passes straight through.
 class BotGuard
-  PROTECTED_PATHS = %r{\A/(api/v1/public|rails/active_storage)/}
+  PROTECTED_PATHS = %r{\A/(api/v1/guest|rails/active_storage)/}
 
   DEFAULT_BOT_UA = Regexp.union(
     /GPTBot/i, /ChatGPT-User/i, /OAI-SearchBot/i, /ClaudeBot/i, /anthropic-ai/i, /Claude-Web/i,

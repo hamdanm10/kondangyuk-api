@@ -64,18 +64,47 @@ Swagger UI is available at `/api-docs` once the server is running.
 ```
 app/
 ├── controllers/
+│   ├── application_controller.rb
 │   └── api/
-│       └── v1/          # All controllers live here, namespaced under Api::V1
+│       └── v1/
+│           ├── base_controller.rb          # parent for all API v1 controllers
+│           ├── guest/                       # public endpoints, no auth
+│           │   ├── base_controller.rb
+│           │   └── sessions_controller.rb
+│           ├── super_admin/                 # super_admin only
+│           │   ├── base_controller.rb
+│           │   ├── users_controller.rb
+│           │   └── settings_controller.rb
+│           ├── admin/                       # admin only
+│           │   ├── base_controller.rb
+│           │   ├── users_controller.rb
+│           │   └── projects_controller.rb
+│           └── designer/                    # designer only
+│               ├── base_controller.rb
+│               ├── projects_controller.rb
+│               └── assets_controller.rb
 ├── views/
 │   └── api/
-│       └── v1/          # JBuilder files mirror the controller structure
+│       └── v1/          # JBuilder files mirror the controller structure (incl. role folder)
 ├── services/            # All business logic
 │   └── base_service.rb
 ├── repositories/        # All database queries
 │   └── base_repository.rb
 ├── models/              # Validations, associations, and model-level callbacks only
 └── jobs/                # Background jobs (Solid Queue)
+
+config/
+├── routes.rb           # Draws each per-role route file — no resources defined here
+└── routes/             # One file per role, drawn from routes.rb
+    ├── guest.rb
+    ├── super_admin.rb
+    ├── admin.rb
+    └── designer.rb
 ```
+
+Controllers are grouped into a **per-role folder** under `api/v1/` (`guest/`, `super_admin/`,
+`admin/`, `designer/`). Each role folder has its own `base_controller.rb` that handles that
+role's authentication and authorization.
 
 ### Layer responsibilities
 
@@ -91,42 +120,53 @@ app/
 
 ## Controller Hierarchy
 
-Every controller MUST inherit from the appropriate base controller — never directly from `ApplicationController`.
+Every controller MUST inherit from its **role's** base controller — never directly from
+`ApplicationController` or `Api::V1::BaseController`.
 
 ```
 ApplicationController
 └── Api::V1::BaseController
-    ├── Api::V1::GuestApplicationController      # public endpoints, no auth
-    ├── Api::V1::AdminApplicationController      # admin staff only
-    └── Api::V1::SuperAdminApplicationController # super admin only
+    ├── Api::V1::Guest::BaseController       # public endpoints, no auth
+    ├── Api::V1::SuperAdmin::BaseController  # super_admin only
+    ├── Api::V1::Admin::BaseController       # admin only
+    └── Api::V1::Designer::BaseController    # designer only
 ```
 
 | Base controller | Auth required | Role check | Use for |
 |---|---|---|---|
 | `ApplicationController` | — | — | Global config only — JSend helpers, `rescue_from`, error handling |
 | `Api::V1::BaseController` | Yes (`require_authentication`) | — | Foundation for all API v1 controllers |
-| `Api::V1::GuestApplicationController` | No (skipped) | — | Public endpoints: login, register, password reset |
-| `Api::V1::AdminApplicationController` | Yes | `admin` | Admin staff features |
-| `Api::V1::SuperAdminApplicationController` | Yes | `super_admin` | Super admin features |
+| `Api::V1::Guest::BaseController` | No (skipped) | — | Public endpoints: login, register, password reset |
+| `Api::V1::SuperAdmin::BaseController` | Yes | `super_admin` | Super admin features |
+| `Api::V1::Admin::BaseController` | Yes | `admin` | Admin staff features |
+| `Api::V1::Designer::BaseController` | Yes | `designer` | Designer features |
 
 ```ruby
 # Public endpoint
-class Api::V1::SessionsController < Api::V1::GuestApplicationController
-end
-
-# Admin staff endpoint
-class Api::V1::UsersController < Api::V1::AdminApplicationController
+class Api::V1::Guest::SessionsController < Api::V1::Guest::BaseController
 end
 
 # Super admin endpoint
-class Api::V1::RolesController < Api::V1::SuperAdminApplicationController
+class Api::V1::SuperAdmin::UsersController < Api::V1::SuperAdmin::BaseController
+end
+
+# Admin staff endpoint
+class Api::V1::Admin::ProjectsController < Api::V1::Admin::BaseController
+end
+
+# Designer endpoint
+class Api::V1::Designer::AssetsController < Api::V1::Designer::BaseController
 end
 ```
 
 **Mandatory rules:**
 - NEVER inherit directly from `ApplicationController` for any endpoint controller
-- NEVER inherit from `Api::V1::BaseController` directly — always choose the correct access-level subclass
-- `GuestApplicationController` is ONLY for truly public endpoints — when in doubt, require authentication
+- NEVER inherit from `Api::V1::BaseController` directly — always choose the correct role's base controller
+- Every controller MUST live in its role folder and be namespaced under that role module
+  (e.g. `Api::V1::Admin::UsersController` in `app/controllers/api/v1/admin/users_controller.rb`)
+- The same resource may exist under multiple roles (e.g. `Admin::UsersController` and
+  `SuperAdmin::UsersController`) — each is a separate controller scoped to its role
+- `Api::V1::Guest::BaseController` is ONLY for truly public endpoints — when in doubt, require authentication
 
 ---
 
@@ -138,20 +178,22 @@ Controllers must be **thin**. A controller action does exactly three things: rec
 # CORRECT
 module Api
   module V1
-    class SessionsController < ApplicationController
-      def create
-        result = Authentication::LoginService.call(login_params)
-        if result.success?
-          render_success(result.data, :created)
-        else
-          render_fail(result.errors, :unprocessable_entity)
+    module Guest
+      class SessionsController < Api::V1::Guest::BaseController
+        def create
+          result = Authentication::LoginService.call(login_params)
+          if result.success?
+            render_success(result.data, :created)
+          else
+            render_fail(result.errors, :unprocessable_entity)
+          end
         end
-      end
 
-      private
+        private
 
-      def login_params
-        params.require(:session).permit(:email, :password)
+        def login_params
+          params.require(:session).permit(:email, :password)
+        end
       end
     end
   end
@@ -159,7 +201,7 @@ end
 ```
 
 **Mandatory rules:**
-- Controllers MUST inherit from `ApplicationController`
+- Controllers MUST inherit from their role's base controller (`Api::V1::<Role>::BaseController`)
 - Controllers MUST use strong parameters for every action that accepts input
 - Controllers MUST use `render_success`, `render_fail`, or `render_error` — never `render json:` directly
 - Controllers MUST NOT contain ActiveRecord queries
@@ -256,17 +298,19 @@ All success JSON responses MUST use JBuilder view files. `render json:` is forbi
 
 ### File structure
 
-JBuilder files mirror the controller namespace exactly:
+JBuilder files mirror the controller namespace exactly — including the role folder:
 
 ```
 app/
 └── views/
     └── api/
         └── v1/
-            ├── sessions/
-            │   └── create.json.jbuilder
-            └── profiles/
-                └── show.json.jbuilder
+            ├── guest/
+            │   └── sessions/
+            │       └── create.json.jbuilder
+            └── admin/
+                └── projects/
+                    └── show.json.jbuilder
 ```
 
 ### JSend wrapper in JBuilder
@@ -274,7 +318,7 @@ app/
 Every JBuilder file MUST wrap its output in the JSend `success` envelope:
 
 ```ruby
-# app/views/api/v1/sessions/create.json.jbuilder
+# app/views/api/v1/guest/sessions/create.json.jbuilder
 json.status "success"
 json.data do
   json.user do
@@ -398,20 +442,48 @@ end
 
 ## Routes
 
+Routes are **split per role**. Each role has its own file under `config/routes/` that is loaded
+from `config/routes.rb` via Rails' `draw` helper. `config/routes.rb` itself MUST NOT define any
+`resources`/`resource` — it only draws the per-role files.
+
 ```ruby
 # config/routes.rb
 Rails.application.routes.draw do
-  namespace :api do
-    namespace :v1 do
-      resources :users, only: [:show, :create, :update, :destroy]
-      resource  :session, only: [:create, :destroy]
+  draw(:guest)
+  draw(:super_admin)
+  draw(:admin)
+  draw(:designer)
+end
+```
+
+```ruby
+# config/routes/super_admin.rb
+namespace :api do
+  namespace :v1 do
+    namespace :super_admin do
+      resources :users,    only: [:index, :show, :create, :update, :destroy]
+      resources :settings, only: [:index, :update]
+    end
+  end
+end
+```
+
+```ruby
+# config/routes/guest.rb
+namespace :api do
+  namespace :v1 do
+    namespace :guest do
+      resource :session, only: [:create, :destroy]
     end
   end
 end
 ```
 
 **Mandatory rules:**
-- ALL routes MUST be defined inside `namespace :api` > `namespace :v1`
+- Each role's routes MUST live in its own file: `config/routes/<role>.rb`
+  (`guest.rb`, `super_admin.rb`, `admin.rb`, `designer.rb`)
+- `config/routes.rb` MUST only call `draw(:<role>)` for each role — NEVER define routes there directly
+- ALL routes MUST be nested inside `namespace :api` > `namespace :v1` > `namespace :<role>`
 - ALWAYS use `resources` or `resource` — NEVER define routes manually with `get`, `post`, `delete`, etc.
 - Use `only:` or `except:` to restrict to the actions actually implemented
 - Every route that returns a list of data (index actions) MUST implement pagination using the `pagy` gem — call `pagy(:offset, collection)` in the controller and include `pagination` metadata in the JBuilder response. Never return unbounded collections.
@@ -464,7 +536,11 @@ spec/
 ├── factories/          # FactoryBot factories (one file per model)
 ├── requests/
 │   └── api/
-│       └── v1/         # Request specs (one file per controller)
+│       └── v1/         # Request specs mirror the controller role folders
+│           ├── guest/
+│           ├── super_admin/
+│           ├── admin/
+│           └── designer/
 ├── support/
 │   └── request_helpers.rb
 ├── rails_helper.rb
@@ -479,10 +555,10 @@ swagger/
 ```ruby
 require 'swagger_helper'
 
-RSpec.describe 'API V1 Users', type: :request do
-  path '/api/v1/users' do
-    post 'Create admin user' do
-      tags     'Users'
+RSpec.describe 'API V1 SuperAdmin Users', type: :request do
+  path '/api/v1/super_admin/users' do
+    post 'Create user' do
+      tags     'SuperAdmin Users'
       consumes 'application/json'
       produces 'application/json'
       security [ cookieAuth: [] ]
@@ -516,7 +592,7 @@ end
 ### Available helpers
 
 ```ruby
-login_as(user)   # POST /api/v1/session with user credentials (sets cookie automatically)
+login_as(user)   # POST /api/v1/guest/session with user credentials (sets cookie automatically)
 ```
 
 ### Mandatory rules

@@ -2,7 +2,7 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
 
-  enum :role, { admin: "admin", super_admin: "super_admin" }
+  enum :role, { admin: "admin", super_admin: "super_admin", designer: "designer" }
 
   normalizes :email, with: ->(email) { email.strip.downcase }
 

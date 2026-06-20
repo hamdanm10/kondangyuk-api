@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Security: BotGuard + anti-indexing', type: :request do
   let(:published) { create(:invitation, :published, :with_document, slug: 'guard-me') }
-  let(:public_path) { "/api/v1/public/invitations/#{published.slug}" }
+  let(:public_path) { "/api/v1/guest/invitations/#{published.slug}" }
   let(:json) { { 'ACCEPT' => 'application/json' } }
 
   describe 'bot blocking on protected paths' do
@@ -41,7 +41,7 @@ RSpec.describe 'Security: BotGuard + anti-indexing', type: :request do
 
     it 'sets X-Robots-Tag noindex on admin API responses too' do
       login_as(create(:user))
-      get '/api/v1/orders', headers: json
+      get '/api/v1/admin/orders', headers: json
 
       expect(response.headers['X-Robots-Tag']).to include('noindex')
     end

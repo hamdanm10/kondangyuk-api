@@ -42,7 +42,7 @@ servers:
 - url: http://localhost:3000
   description: Development
 paths:
-  "/api/v1/invitations/{invitation_id}/document/media":
+  "/api/v1/admin/invitations/{invitation_id}/document/media":
     parameters:
     - name: invitation_id
       in: path
@@ -121,7 +121,7 @@ paths:
             schema:
               type: file
         required: true
-  "/api/v1/invitations/{invitation_id}/document/media/{id}":
+  "/api/v1/admin/invitations/{invitation_id}/document/media/{id}":
     parameters:
     - name: invitation_id
       in: path
@@ -166,7 +166,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/invitations/{invitation_id}/document":
+  "/api/v1/admin/invitations/{invitation_id}/document":
     parameters:
     - name: invitation_id
       in: path
@@ -293,7 +293,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/invitations/{invitation_id}/thumbnail":
+  "/api/v1/admin/invitations/{invitation_id}/thumbnail":
     parameters:
     - name: invitation_id
       in: path
@@ -398,7 +398,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/invitations":
+  "/api/v1/admin/invitations":
     get:
       summary: List all invitations
       tags:
@@ -508,7 +508,7 @@ paths:
                   - order_id
                   - slug
         required: true
-  "/api/v1/invitations/{id}":
+  "/api/v1/admin/invitations/{id}":
     get:
       summary: Show invitation
       tags:
@@ -658,7 +658,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/orders":
+  "/api/v1/admin/orders":
     get:
       summary: List all orders
       tags:
@@ -799,7 +799,7 @@ paths:
                   - template_id
                   - price
         required: true
-  "/api/v1/orders/{id}":
+  "/api/v1/admin/orders/{id}":
     get:
       summary: Show order
       tags:
@@ -940,7 +940,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/profile":
+  "/api/v1/admin/profile":
     get:
       summary: Get own profile
       tags:
@@ -985,7 +985,7 @@ paths:
                     example: fail
                   data:
                     type: object
-  "/api/v1/public/invitations/{slug}":
+  "/api/v1/guest/invitations/{slug}":
     get:
       summary: Show published invitation (public customer page)
       tags:
@@ -1050,7 +1050,77 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/public/templates":
+  "/api/v1/guest/session":
+    post:
+      summary: Login
+      tags:
+      - Public | Sessions
+      description: Authenticates user and sets httpOnly session cookie. Rate limited
+        to 10 requests/minute per IP.
+      parameters: []
+      responses:
+        '201':
+          description: login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          email:
+                            type: string
+        '422':
+          description: invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  data:
+                    type: object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: admin@kondangyuk.test
+                    password:
+                      type: string
+                      example: Password12345!
+                  required:
+                  - email
+                  - password
+        required: true
+    delete:
+      summary: Logout
+      tags:
+      - Public | Sessions
+      description: Destroys the current session and clears the session cookie.
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: logout successful
+  "/api/v1/guest/templates":
     get:
       summary: List published templates (public catalog)
       tags:
@@ -1158,7 +1228,7 @@ paths:
                           limit:
                             type: integer
                             example: 10
-  "/api/v1/public/templates/{slug}":
+  "/api/v1/guest/templates/{slug}":
     get:
       summary: Show published template (public detail with document)
       tags:
@@ -1237,77 +1307,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/session":
-    post:
-      summary: Login
-      tags:
-      - Public | Sessions
-      description: Authenticates user and sets httpOnly session cookie. Rate limited
-        to 10 requests/minute per IP.
-      parameters: []
-      responses:
-        '201':
-          description: login successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  data:
-                    type: object
-                    properties:
-                      user:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          email:
-                            type: string
-        '422':
-          description: invalid credentials
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  data:
-                    type: object
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                session:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: admin@kondangyuk.test
-                    password:
-                      type: string
-                      example: Password12345!
-                  required:
-                  - email
-                  - password
-        required: true
-    delete:
-      summary: Logout
-      tags:
-      - Public | Sessions
-      description: Destroys the current session and clears the session cookie.
-      security:
-      - cookieAuth: []
-      responses:
-        '204':
-          description: logout successful
-  "/api/v1/templates/{template_id}/document/media":
+  "/api/v1/super_admin/templates/{template_id}/document/media":
     parameters:
     - name: template_id
       in: path
@@ -1387,7 +1387,7 @@ paths:
             schema:
               type: file
         required: true
-  "/api/v1/templates/{template_id}/document/media/{id}":
+  "/api/v1/super_admin/templates/{template_id}/document/media/{id}":
     parameters:
     - name: template_id
       in: path
@@ -1432,7 +1432,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/templates/{template_id}/document":
+  "/api/v1/super_admin/templates/{template_id}/document":
     parameters:
     - name: template_id
       in: path
@@ -1611,7 +1611,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/templates/{template_id}/thumbnail":
+  "/api/v1/super_admin/templates/{template_id}/thumbnail":
     parameters:
     - name: template_id
       in: path
@@ -1716,7 +1716,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/templates":
+  "/api/v1/super_admin/templates":
     get:
       summary: List all templates
       tags:
@@ -1965,14 +1965,14 @@ paths:
                   - name
                   - document
         required: true
-  "/api/v1/templates/{id}":
+  "/api/v1/super_admin/templates/{id}":
     get:
       summary: Show template
       tags:
       - Super Admin | Templates
       description: Returns a single template (metadata only) by ID or slug. The document
-        detail is fetched via /api/v1/templates/{id}/document. Accessible by super_admin
-        only.
+        detail is fetched via /api/v1/super_admin/templates/{id}/document. Accessible
+        by super_admin only.
       security:
       - cookieAuth: []
       parameters:
@@ -2229,7 +2229,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/themes":
+  "/api/v1/super_admin/themes":
     get:
       summary: List all themes
       tags:
@@ -2376,7 +2376,7 @@ paths:
                   required:
                   - name
         required: true
-  "/api/v1/themes/{id}":
+  "/api/v1/super_admin/themes/{id}":
     get:
       summary: Show theme
       tags:
@@ -2562,7 +2562,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/tiers":
+  "/api/v1/super_admin/tiers":
     get:
       summary: List all tiers
       tags:
@@ -2717,7 +2717,7 @@ paths:
                   - name
                   - price
         required: true
-  "/api/v1/tiers/{id}":
+  "/api/v1/super_admin/tiers/{id}":
     get:
       summary: Show tier
       tags:
@@ -2911,7 +2911,7 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/users":
+  "/api/v1/super_admin/users":
     get:
       summary: List all admin users
       tags:
