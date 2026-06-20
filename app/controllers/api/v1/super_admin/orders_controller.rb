@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Admin::OrdersController < Api::V1::Admin::BaseController
+    class SuperAdmin::OrdersController < Api::V1::SuperAdmin::BaseController
       def index
         result = Orders::ListService.call
         @pagy, @orders = pagy(:offset, result.data[:collection])

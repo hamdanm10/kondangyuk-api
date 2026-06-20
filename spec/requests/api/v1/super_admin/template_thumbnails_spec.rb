@@ -8,9 +8,9 @@ RSpec.describe 'API V1 Template Thumbnail', type: :request do
     parameter name: :template_id, in: :path, type: :string, required: true, description: 'Template ID or slug'
 
     get 'Show thumbnail' do
-      tags 'Admin | Thumbnails'
+      tags 'Super Admin | Thumbnails'
       produces 'application/json'
-      description 'Returns the template thumbnail proxy URL (or null). Accessible by admin or super_admin.'
+      description 'Returns the template thumbnail proxy URL (or null). Accessible by super_admin only.'
       security [ cookieAuth: [] ]
 
       response '200', 'thumbnail returned' do
@@ -38,10 +38,10 @@ RSpec.describe 'API V1 Template Thumbnail', type: :request do
     end
 
     put 'Upload thumbnail' do
-      tags 'Admin | Thumbnails'
+      tags 'Super Admin | Thumbnails'
       consumes 'multipart/form-data'
       produces 'application/json'
-      description 'Uploads/replaces the template thumbnail (image only). Accessible by admin or super_admin.'
+      description 'Uploads/replaces the template thumbnail (image only). Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :thumbnail, in: :formData, type: :file, required: true
 
@@ -74,9 +74,9 @@ RSpec.describe 'API V1 Template Thumbnail', type: :request do
     end
 
     delete 'Remove thumbnail' do
-      tags 'Admin | Thumbnails'
+      tags 'Super Admin | Thumbnails'
       produces 'application/json'
-      description 'Removes (purges) the template thumbnail — hard delete. Accessible by admin or super_admin.'
+      description 'Removes (purges) the template thumbnail — hard delete. Accessible by super_admin only.'
       security [ cookieAuth: [] ]
 
       response '200', 'thumbnail removed' do

@@ -1,21 +1,21 @@
 require 'swagger_helper'
 
 RSpec.describe 'API V1 Orders', type: :request do
-  path '/api/v1/admin/orders' do
+  path '/api/v1/super_admin/orders' do
     get 'List all orders' do
-      tags        'Admin | Orders'
+      tags        'Super Admin | Orders'
       produces    'application/json'
-      description 'Returns all orders with pagination. Accessible by admin or super_admin.'
+      description 'Returns all orders with pagination. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
       parameter name: :page,  in: :query, type: :integer, required: false, description: 'Page number'
       parameter name: :limit, in: :query, type: :integer, required: false, description: 'Items per page'
 
       response '200', 'orders returned' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         before do
           create_list(:order, 3)
-          login_as(admin)
+          login_as(super_admin)
         end
 
         schema type: :object,
@@ -51,13 +51,20 @@ RSpec.describe 'API V1 Orders', type: :request do
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        before { login_as(admin) }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
     end
 
     post 'Create order' do
-      tags        'Admin | Orders'
+      tags        'Super Admin | Orders'
       consumes    'application/json'
       produces    'application/json'
-      description 'Creates an order for a template (status defaults to pending). Accessible by admin or super_admin.'
+      description 'Creates an order for a template (status defaults to pending). Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -76,10 +83,10 @@ RSpec.describe 'API V1 Orders', type: :request do
       }
 
       response '201', 'order created' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:template) { create(:template) }
         let(:body) { { order: { template_id: template.id, price: 150_000 } } }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
 
         schema type: :object,
                properties: {
@@ -104,10 +111,10 @@ RSpec.describe 'API V1 Orders', type: :request do
       end
 
       response '422', 'validation failed' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:template) { create(:template) }
         let(:body) { { order: { template_id: template.id, price: -1, status: 'bogus' } } }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
 
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
@@ -118,30 +125,38 @@ RSpec.describe 'API V1 Orders', type: :request do
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        let(:body) { { order: { template_id: 1, price: 1 } } }
+        before { login_as(admin) }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
     end
   end
 
-  path '/api/v1/admin/orders/{id}' do
+  path '/api/v1/super_admin/orders/{id}' do
     get 'Show order' do
-      tags 'Admin | Orders'
+      tags 'Super Admin | Orders'
       produces 'application/json'
-      description 'Returns a single order by ID. Accessible by admin or super_admin.'
+      description 'Returns a single order by ID. Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :id, in: :path, type: :integer, required: true
 
       response '200', 'order returned' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order) }
         let(:id) { order.id }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
         run_test!
       end
 
       response '404', 'order not found' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:id) { 0 }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
@@ -151,13 +166,21 @@ RSpec.describe 'API V1 Orders', type: :request do
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        let(:id) { 1 }
+        before { login_as(admin) }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
     end
 
     patch 'Update order' do
-      tags 'Admin | Orders'
+      tags 'Super Admin | Orders'
       consumes 'application/json'
       produces 'application/json'
-      description 'Updates an order (price and/or status) by ID. Accessible by admin or super_admin.'
+      description 'Updates an order (price and/or status) by ID. Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :id, in: :path, type: :integer, required: true
       parameter name: :body, in: :body, required: true, schema: {
@@ -175,31 +198,31 @@ RSpec.describe 'API V1 Orders', type: :request do
       }
 
       response '200', 'order updated' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order) }
         let(:id) { order.id }
         # Partial update (status only) must not clobber price/template_id.
         let(:body) { { order: { status: 'working' } } }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
         run_test!
       end
 
       response '422', 'invalid status' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order) }
         let(:id) { order.id }
         let(:body) { { order: { template_id: order.template_id, price: 1, status: 'bogus' } } }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
 
       response '404', 'order not found' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:id) { 0 }
         let(:body) { { order: { price: 1 } } }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
@@ -207,37 +230,54 @@ RSpec.describe 'API V1 Orders', type: :request do
       response '401', 'not authenticated' do
         let(:id) { 1 }
         let(:body) { { order: { price: 1 } } }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        let(:id) { 1 }
+        let(:body) { { order: { price: 1 } } }
+        before { login_as(admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
     end
 
     delete 'Delete order' do
-      tags 'Admin | Orders'
+      tags 'Super Admin | Orders'
       produces 'application/json'
-      description 'Permanently deletes an order by ID (hard delete). Accessible by admin or super_admin.'
+      description 'Permanently deletes an order by ID (hard delete). Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :id, in: :path, type: :integer, required: true
 
       response '200', 'order deleted' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order) }
         let(:id) { order.id }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
         run_test!
       end
 
       response '404', 'order not found' do
-        let(:admin) { create(:user) }
+        let(:super_admin) { create(:user, :super_admin) }
         let(:id) { 0 }
-        before { login_as(admin) }
+        before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
 
       response '401', 'not authenticated' do
         let(:id) { 1 }
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
+      response '403', 'forbidden — admin role cannot access' do
+        let(:admin) { create(:user) }
+        let(:id) { 1 }
+        before { login_as(admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end

@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Admin::InvitationThumbnailsController < Api::V1::Admin::BaseController
+    class SuperAdmin::InvitationThumbnailsController < Api::V1::SuperAdmin::BaseController
       def show
         @record = invitation
         render_success(nil, :ok)

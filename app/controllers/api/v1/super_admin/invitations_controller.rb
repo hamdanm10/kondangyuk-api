@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Admin::InvitationsController < Api::V1::Admin::BaseController
+    class SuperAdmin::InvitationsController < Api::V1::SuperAdmin::BaseController
       def index
         result = Invitations::ListService.call
         @pagy, @invitations = pagy(:offset, result.data[:collection])

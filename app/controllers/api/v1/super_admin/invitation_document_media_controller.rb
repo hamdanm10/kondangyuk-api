@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Admin::InvitationDocumentMediaController < Api::V1::Admin::BaseController
+    class SuperAdmin::InvitationDocumentMediaController < Api::V1::SuperAdmin::BaseController
       def index
         @media = Media::ListService.call(record: document).data[:media]
         render_success(nil, :ok)

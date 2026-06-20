@@ -39,9 +39,9 @@ RSpec.describe 'Security: BotGuard + anti-indexing', type: :request do
       expect(response.headers['X-Robots-Tag']).to include('noindex')
     end
 
-    it 'sets X-Robots-Tag noindex on admin API responses too' do
-      login_as(create(:user))
-      get '/api/v1/admin/orders', headers: json
+    it 'sets X-Robots-Tag noindex on authenticated API responses too' do
+      login_as(create(:user, :super_admin))
+      get '/api/v1/super_admin/orders', headers: json
 
       expect(response.headers['X-Robots-Tag']).to include('noindex')
     end

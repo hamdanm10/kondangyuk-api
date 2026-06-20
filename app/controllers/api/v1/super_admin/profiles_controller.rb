@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Admin::ProfilesController < Api::V1::Admin::BaseController
+    class SuperAdmin::ProfilesController < Api::V1::SuperAdmin::BaseController
       def show
         @user = current_user
         render_success

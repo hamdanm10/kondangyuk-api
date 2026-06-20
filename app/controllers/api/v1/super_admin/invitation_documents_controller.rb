@@ -1,6 +1,6 @@
 module Api
   module V1
-    class Admin::InvitationDocumentsController < Api::V1::Admin::BaseController
+    class SuperAdmin::InvitationDocumentsController < Api::V1::SuperAdmin::BaseController
       def show
         result = InvitationDocuments::ShowService.call(invitation_id: params[:invitation_id])
         @document = result.data[:document]

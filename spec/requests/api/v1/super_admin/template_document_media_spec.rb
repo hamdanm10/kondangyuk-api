@@ -9,9 +9,9 @@ RSpec.describe 'API V1 Template Document Media', type: :request do
               description: 'Template ID or slug'
 
     get 'List document media' do
-      tags 'Admin | Media'
+      tags 'Super Admin | Media'
       produces 'application/json'
-      description 'Lists media attached to a template document (proxy URLs). Accessible by admin or super_admin.'
+      description 'Lists media attached to a template document (proxy URLs). Accessible by super_admin only.'
       security [ cookieAuth: [] ]
 
       response '200', 'media returned' do
@@ -39,11 +39,11 @@ RSpec.describe 'API V1 Template Document Media', type: :request do
     end
 
     post 'Upload document media' do
-      tags 'Admin | Media'
+      tags 'Super Admin | Media'
       consumes 'multipart/form-data'
       produces 'application/json'
       description 'Uploads a media file (image/audio/video) to a template document and returns its ' \
-                  'stable proxy URL to embed in the document meta DSL. Accessible by admin or super_admin.'
+                  'stable proxy URL to embed in the document meta DSL. Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :file, in: :formData, type: :file, required: true
 
@@ -81,9 +81,9 @@ RSpec.describe 'API V1 Template Document Media', type: :request do
     parameter name: :id, in: :path, type: :integer, required: true, description: 'Media (attachment) ID'
 
     delete 'Delete document media' do
-      tags 'Admin | Media'
+      tags 'Super Admin | Media'
       produces 'application/json'
-      description 'Permanently deletes (purges) a media attachment by ID — hard delete. Accessible by admin or super_admin.'
+      description 'Permanently deletes (purges) a media attachment by ID — hard delete. Accessible by super_admin only.'
       security [ cookieAuth: [] ]
 
       response '200', 'media deleted' do
