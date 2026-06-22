@@ -23,20 +23,21 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/session",
+              "raw": "{{baseUrl}}/api/v1/guest/session",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "guest",
                 "session"
               ]
             },
             "description": "Authenticates user and sets httpOnly session cookie. Rate limited to 10 requests/minute per IP.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"session\": {\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n  }\n}",
+              "raw": "{\n  \"session\": {\n    \"email\": \"admin@kondangyuk.test\",\n    \"password\": \"Password12345!\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -57,47 +58,18 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/session",
+              "raw": "{{baseUrl}}/api/v1/guest/session",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "guest",
                 "session"
               ]
             },
             "description": "Destroys the current session and clears the session cookie."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin | Profiles",
-      "item": [
-        {
-          "name": "Get own profile",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "profile"
-              ]
-            },
-            "description": "Returns the authenticated user profile. Accessible by admin and super_admin."
           },
           "response": []
         }
@@ -117,13 +89,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/users",
+              "raw": "{{baseUrl}}/api/v1/super_admin/users",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "users"
               ],
               "query": [
@@ -160,13 +133,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/users",
+              "raw": "{{baseUrl}}/api/v1/super_admin/users",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "users"
               ]
             },
@@ -199,13 +173,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/themes",
+              "raw": "{{baseUrl}}/api/v1/super_admin/themes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "themes"
               ],
               "query": [
@@ -242,13 +217,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/themes",
+              "raw": "{{baseUrl}}/api/v1/super_admin/themes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "themes"
               ]
             },
@@ -276,13 +252,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/themes/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/themes/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "themes",
                 ":id"
               ],
@@ -313,13 +290,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/themes/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/themes/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "themes",
                 ":id"
               ],
@@ -355,13 +333,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/themes/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/themes/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "themes",
                 ":id"
               ],
@@ -374,994 +353,6 @@
               ]
             },
             "description": "Soft deletes a theme by ID (sets deleted_at). Record is retained in the database and excluded from all queries. Accessible by super_admin only."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin | Media",
-      "item": [
-        {
-          "name": "List document media",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/document/media",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "document",
-                "media"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Lists media attached to an invitation document (proxy URLs). Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Upload document media",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/document/media",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "document",
-                "media"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Uploads a media file (image/audio/video) to an invitation document and returns its stable proxy URL. Accessible by admin or super_admin.",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": [],
-                  "description": "file to upload"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete document media",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/document/media/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "document",
-                "media",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": ""
-                },
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": "Media (attachment) ID"
-                }
-              ]
-            },
-            "description": "Permanently deletes (purges) a media attachment by ID — hard delete. Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "List document media",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/document/media",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "templates",
-                ":template_id",
-                "document",
-                "media"
-              ],
-              "variable": [
-                {
-                  "key": "template_id",
-                  "value": "1",
-                  "description": "Template ID or slug"
-                }
-              ]
-            },
-            "description": "Lists media attached to a template document (proxy URLs). Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Upload document media",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/document/media",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "templates",
-                ":template_id",
-                "document",
-                "media"
-              ],
-              "variable": [
-                {
-                  "key": "template_id",
-                  "value": "1",
-                  "description": "Template ID or slug"
-                }
-              ]
-            },
-            "description": "Uploads a media file (image/audio/video) to a template document and returns its stable proxy URL to embed in the document meta DSL. Accessible by admin or super_admin.",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": [],
-                  "description": "file to upload"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete document media",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/document/media/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "templates",
-                ":template_id",
-                "document",
-                "media",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "template_id",
-                  "value": "1",
-                  "description": ""
-                },
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": "Media (attachment) ID"
-                }
-              ]
-            },
-            "description": "Permanently deletes (purges) a media attachment by ID — hard delete. Accessible by admin or super_admin."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin | Invitation Documents",
-      "item": [
-        {
-          "name": "Show invitation document",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/document",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "document"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Returns the invitation document (meta + MDX snapshot). Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Update invitation document",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/document",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "document"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Updates the invitation document (meta + MDX). Accessible by admin or super_admin.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"invitation_document\": {\n    \"meta\": {},\n    \"document\": \"string\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete invitation document",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/document",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "document"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Permanently deletes an invitation document (hard delete). The invitation_documents table has no deleted_at column. Accessible by admin or super_admin."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin | Thumbnails",
-      "item": [
-        {
-          "name": "Show thumbnail",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/thumbnail",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "thumbnail"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Returns the invitation thumbnail proxy URL (or null). Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Upload thumbnail",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/thumbnail",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "thumbnail"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Uploads/replaces the invitation thumbnail (image only). Accessible by admin or super_admin.",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "thumbnail",
-                  "type": "file",
-                  "src": [],
-                  "description": "thumbnail to upload"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Remove thumbnail",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:invitation_id/thumbnail",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":invitation_id",
-                "thumbnail"
-              ],
-              "variable": [
-                {
-                  "key": "invitation_id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Removes (purges) the invitation thumbnail — hard delete. Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Show thumbnail",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/thumbnail",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "templates",
-                ":template_id",
-                "thumbnail"
-              ],
-              "variable": [
-                {
-                  "key": "template_id",
-                  "value": "1",
-                  "description": "Template ID or slug"
-                }
-              ]
-            },
-            "description": "Returns the template thumbnail proxy URL (or null). Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Upload thumbnail",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/thumbnail",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "templates",
-                ":template_id",
-                "thumbnail"
-              ],
-              "variable": [
-                {
-                  "key": "template_id",
-                  "value": "1",
-                  "description": "Template ID or slug"
-                }
-              ]
-            },
-            "description": "Uploads/replaces the template thumbnail (image only). Accessible by admin or super_admin.",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "thumbnail",
-                  "type": "file",
-                  "src": [],
-                  "description": "thumbnail to upload"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Remove thumbnail",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/thumbnail",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "templates",
-                ":template_id",
-                "thumbnail"
-              ],
-              "variable": [
-                {
-                  "key": "template_id",
-                  "value": "1",
-                  "description": "Template ID or slug"
-                }
-              ]
-            },
-            "description": "Removes (purges) the template thumbnail — hard delete. Accessible by admin or super_admin."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin | Invitations",
-      "item": [
-        {
-          "name": "List all invitations",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1",
-                  "description": "",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "1",
-                  "description": "",
-                  "disabled": true
-                }
-              ]
-            },
-            "description": "Returns all invitations with pagination. Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Create invitation (snapshot of the order template)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations"
-              ]
-            },
-            "description": "Creates an invitation as an immutable snapshot of the order template document (meta + MDX copied into invitation_document). name/description default to the template's when omitted. Accessible by admin or super_admin.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"invitation\": {\n    \"order_id\": 0,\n    \"slug\": \"andi-and-budi\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"published_at\": \"2026-01-01T00:00:00Z\",\n    \"expires_at\": \"2026-01-01T00:00:00Z\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Show invitation",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": "Invitation ID or slug"
-                }
-              ]
-            },
-            "description": "Returns a single invitation by ID or slug. Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Update invitation",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": ""
-                }
-              ]
-            },
-            "description": "Updates invitation metadata by ID or slug. Accessible by admin or super_admin.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"invitation\": {\n    \"slug\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"published_at\": \"2026-01-01T00:00:00Z\",\n    \"expires_at\": \"2026-01-01T00:00:00Z\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete invitation",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/invitations/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "invitations",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": ""
-                }
-              ]
-            },
-            "description": "Permanently deletes an invitation by ID or slug (hard delete, cascades to its document). Accessible by admin or super_admin."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin | Orders",
-      "item": [
-        {
-          "name": "List all orders",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/orders",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1",
-                  "description": "Page number",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "1",
-                  "description": "Items per page",
-                  "disabled": true
-                }
-              ]
-            },
-            "description": "Returns all orders with pagination. Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Create order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/orders",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders"
-              ]
-            },
-            "description": "Creates an order for a template (status defaults to pending). Accessible by admin or super_admin.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"order\": {\n    \"template_id\": 0,\n    \"price\": 150000,\n    \"status\": \"pending\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Show order",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/orders/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": ""
-                }
-              ]
-            },
-            "description": "Returns a single order by ID. Accessible by admin or super_admin."
-          },
-          "response": []
-        },
-        {
-          "name": "Update order",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/orders/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": ""
-                }
-              ]
-            },
-            "description": "Updates an order (price and/or status) by ID. Accessible by admin or super_admin.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"order\": {\n    \"template_id\": 0,\n    \"price\": 0,\n    \"status\": \"pending\"\n  }\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete order",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/v1/orders/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "1",
-                  "description": ""
-                }
-              ]
-            },
-            "description": "Permanently deletes an order by ID (hard delete). Accessible by admin or super_admin."
           },
           "response": []
         }
@@ -1381,14 +372,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/public/invitations/:slug",
+              "raw": "{{baseUrl}}/api/v1/guest/invitations/:slug",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "public",
+                "guest",
                 "invitations",
                 ":slug"
               ],
@@ -1420,14 +411,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/public/templates",
+              "raw": "{{baseUrl}}/api/v1/guest/templates",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "public",
+                "guest",
                 "templates"
               ],
               "query": [
@@ -1472,14 +463,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/public/templates/:slug",
+              "raw": "{{baseUrl}}/api/v1/guest/templates/:slug",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "public",
+                "guest",
                 "templates",
                 ":slug"
               ],
@@ -1492,6 +483,1050 @@
               ]
             },
             "description": "Public template detail — returns a published template by slug together with its document (meta + MDX) and thumbnail URL, so the client can render the content. No authentication required. Unpublished templates, or published templates without a document, return 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin | Media",
+      "item": [
+        {
+          "name": "List document media",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/document/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "document",
+                "media"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Lists media attached to an invitation document (proxy URLs). Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload document media",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/document/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "document",
+                "media"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Uploads a media file (image/audio/video) to an invitation document and returns its stable proxy URL. Accessible by super_admin only.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "file to upload"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete document media",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/document/media/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "document",
+                "media",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Media (attachment) ID"
+                }
+              ]
+            },
+            "description": "Permanently deletes (purges) a media attachment by ID — hard delete. Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "List document media",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/document/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "templates",
+                ":template_id",
+                "document",
+                "media"
+              ],
+              "variable": [
+                {
+                  "key": "template_id",
+                  "value": "1",
+                  "description": "Template ID or slug"
+                }
+              ]
+            },
+            "description": "Lists media attached to a template document (proxy URLs). Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload document media",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/document/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "templates",
+                ":template_id",
+                "document",
+                "media"
+              ],
+              "variable": [
+                {
+                  "key": "template_id",
+                  "value": "1",
+                  "description": "Template ID or slug"
+                }
+              ]
+            },
+            "description": "Uploads a media file (image/audio/video) to a template document and returns its stable proxy URL to embed in the document meta DSL. Accessible by super_admin only.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "file to upload"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete document media",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/document/media/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "templates",
+                ":template_id",
+                "document",
+                "media",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "template_id",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Media (attachment) ID"
+                }
+              ]
+            },
+            "description": "Permanently deletes (purges) a media attachment by ID — hard delete. Accessible by super_admin only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin | Invitation Documents",
+      "item": [
+        {
+          "name": "Show invitation document",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/document",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "document"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Returns the invitation document (meta + MDX snapshot). Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update invitation document",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/document",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "document"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Updates the invitation document (meta + MDX). Accessible by super_admin only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invitation_document\": {\n    \"meta\": {},\n    \"document\": \"string\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete invitation document",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/document",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "document"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Permanently deletes an invitation document (hard delete). The invitation_documents table has no deleted_at column. Accessible by super_admin only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin | Thumbnails",
+      "item": [
+        {
+          "name": "Show thumbnail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/thumbnail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "thumbnail"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Returns the invitation thumbnail proxy URL (or null). Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload thumbnail",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/thumbnail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "thumbnail"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Uploads/replaces the invitation thumbnail (image only). Accessible by super_admin only.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": [],
+                  "description": "thumbnail to upload"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove thumbnail",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:invitation_id/thumbnail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":invitation_id",
+                "thumbnail"
+              ],
+              "variable": [
+                {
+                  "key": "invitation_id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Removes (purges) the invitation thumbnail — hard delete. Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Show thumbnail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/thumbnail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "templates",
+                ":template_id",
+                "thumbnail"
+              ],
+              "variable": [
+                {
+                  "key": "template_id",
+                  "value": "1",
+                  "description": "Template ID or slug"
+                }
+              ]
+            },
+            "description": "Returns the template thumbnail proxy URL (or null). Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload thumbnail",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/thumbnail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "templates",
+                ":template_id",
+                "thumbnail"
+              ],
+              "variable": [
+                {
+                  "key": "template_id",
+                  "value": "1",
+                  "description": "Template ID or slug"
+                }
+              ]
+            },
+            "description": "Uploads/replaces the template thumbnail (image only). Accessible by super_admin only.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": [],
+                  "description": "thumbnail to upload"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove thumbnail",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/thumbnail",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "templates",
+                ":template_id",
+                "thumbnail"
+              ],
+              "variable": [
+                {
+                  "key": "template_id",
+                  "value": "1",
+                  "description": "Template ID or slug"
+                }
+              ]
+            },
+            "description": "Removes (purges) the template thumbnail — hard delete. Accessible by super_admin only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin | Invitations",
+      "item": [
+        {
+          "name": "List all invitations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "1",
+                  "description": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Returns all invitations with pagination. Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Create invitation (snapshot of the order template)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations"
+              ]
+            },
+            "description": "Creates an invitation as an immutable snapshot of the order template document (meta + MDX copied into invitation_document). name/description default to the template's when omitted. Accessible by super_admin only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invitation\": {\n    \"order_id\": 0,\n    \"slug\": \"andi-and-budi\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"published_at\": \"2026-01-01T00:00:00Z\",\n    \"expires_at\": \"2026-01-01T00:00:00Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show invitation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Invitation ID or slug"
+                }
+              ]
+            },
+            "description": "Returns a single invitation by ID or slug. Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update invitation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Updates invitation metadata by ID or slug. Accessible by super_admin only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invitation\": {\n    \"slug\": \"string\",\n    \"name\": \"string\",\n    \"description\": \"string\",\n    \"published_at\": \"2026-01-01T00:00:00Z\",\n    \"expires_at\": \"2026-01-01T00:00:00Z\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete invitation",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/invitations/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "invitations",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Permanently deletes an invitation by ID or slug (hard delete, cascades to its document). Accessible by super_admin only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin | Orders",
+      "item": [
+        {
+          "name": "List all orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "1",
+                  "description": "Items per page",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Returns all orders with pagination. Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Create order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "orders"
+              ]
+            },
+            "description": "Creates an order for a template (status defaults to pending). Accessible by super_admin only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": {\n    \"template_id\": 0,\n    \"price\": 150000,\n    \"status\": \"pending\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/orders/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "orders",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Returns a single order by ID. Accessible by super_admin only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/orders/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "orders",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Updates an order (price and/or status) by ID. Accessible by super_admin only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": {\n    \"template_id\": 0,\n    \"price\": 0,\n    \"status\": \"pending\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/orders/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "orders",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Permanently deletes an order by ID (hard delete). Accessible by super_admin only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin | Profiles",
+      "item": [
+        {
+          "name": "Get own profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/super_admin/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "super_admin",
+                "profile"
+              ]
+            },
+            "description": "Returns the authenticated user profile. Accessible by super_admin only."
           },
           "response": []
         }
@@ -1511,13 +1546,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/document",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/document",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates",
                 ":template_id",
                 "document"
@@ -1549,13 +1585,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/document",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/document",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates",
                 ":template_id",
                 "document"
@@ -1592,13 +1629,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:template_id/document",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:template_id/document",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates",
                 ":template_id",
                 "document"
@@ -1631,13 +1669,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates"
               ],
               "query": [
@@ -1686,13 +1725,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates"
               ]
             },
@@ -1720,13 +1760,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates",
                 ":id"
               ],
@@ -1738,7 +1779,7 @@
                 }
               ]
             },
-            "description": "Returns a single template (metadata only) by ID or slug. The document detail is fetched via /api/v1/templates/{id}/document. Accessible by super_admin only."
+            "description": "Returns a single template (metadata only) by ID or slug. The document detail is fetched via /api/v1/super_admin/templates/{id}/document. Accessible by super_admin only."
           },
           "response": []
         },
@@ -1757,13 +1798,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates",
                 ":id"
               ],
@@ -1799,13 +1841,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/templates/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/templates/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "templates",
                 ":id"
               ],
@@ -1837,13 +1880,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/tiers",
+              "raw": "{{baseUrl}}/api/v1/super_admin/tiers",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "tiers"
               ],
               "query": [
@@ -1880,13 +1924,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/tiers",
+              "raw": "{{baseUrl}}/api/v1/super_admin/tiers",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "tiers"
               ]
             },
@@ -1914,13 +1959,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/tiers/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/tiers/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "tiers",
                 ":id"
               ],
@@ -1951,13 +1997,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/tiers/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/tiers/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "tiers",
                 ":id"
               ],
@@ -1993,13 +2040,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/tiers/:id",
+              "raw": "{{baseUrl}}/api/v1/super_admin/tiers/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "v1",
+                "super_admin",
                 "tiers",
                 ":id"
               ],
