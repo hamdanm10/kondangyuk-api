@@ -12,6 +12,8 @@ RSpec.describe 'API V1 Tiers', type: :request do
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
                 description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
+      parameter name: 'q[name_cont]', in: :query, type: :string, required: false,
+                description: 'Filter tiers by name (case-insensitive contains)'
 
       response '200', 'tiers returned' do
         let(:super_admin) { create(:user, :super_admin) }
@@ -54,6 +56,44 @@ RSpec.describe 'API V1 Tiers', type: :request do
                }
 
         run_test!
+      end
+
+      response '200', 'tiers filtered by name' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:'q[name_cont]') { 'Gold' }
+        before do
+          create(:tier, name: 'Gold')
+          create(:tier, name: 'Silver')
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'success' },
+                 data: {
+                   type: :object,
+                   properties: {
+                     tiers: {
+                       type: :array,
+                       items: {
+                         type: :object,
+                         properties: {
+                           id:         { type: :integer },
+                           name:       { type: :string },
+                           price:      { type: :string },
+                           created_at: { type: :string, format: 'date-time' }
+                         }
+                       }
+                     },
+                     pagination: { type: :object }
+                   }
+                 }
+               }
+
+        run_test! do |response|
+          names = JSON.parse(response.body)['data']['tiers'].map { |t| t['name'] }
+          expect(names).to eq([ 'Gold' ])
+        end
       end
 
       response '401', 'not authenticated' do

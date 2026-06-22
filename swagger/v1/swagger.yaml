@@ -2673,9 +2673,15 @@ paths:
         description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
+      - name: q[name_cont]
+        in: query
+        required: false
+        description: Filter tiers by name (case-insensitive contains)
+        schema:
+          type: string
       responses:
         '200':
-          description: tiers returned
+          description: tiers filtered by name
           content:
             application/json:
               schema:

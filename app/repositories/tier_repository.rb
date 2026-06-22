@@ -1,6 +1,6 @@
 class TierRepository < BaseRepository
-  def list_all
-    Tier.active.order(:name)
+  def list_all(query = {})
+    Tier.active.ransack(query).result.order(:name)
   end
 
   def find_by_id(id)

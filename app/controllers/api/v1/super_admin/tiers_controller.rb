@@ -2,7 +2,7 @@ module Api
   module V1
     class SuperAdmin::TiersController < Api::V1::SuperAdmin::BaseController
       def index
-        result = Tiers::ListService.call
+        result = Tiers::ListService.call(query: search_params)
         @pagy, @tiers = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
@@ -42,6 +42,10 @@ module Api
 
       def tier_params
         params.require(:tier).permit(:name, :price)
+      end
+
+      def search_params
+        params.fetch(:q, {}).permit(:name_cont)
       end
     end
   end
