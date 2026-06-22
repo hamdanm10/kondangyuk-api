@@ -12,9 +12,11 @@ RSpec.describe 'API V1 Templates', type: :request do
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
                 description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
-      parameter name: :theme_id, in: :query, type: :integer, required: false,
+      parameter name: 'q[name_or_slug_cont]', in: :query, type: :string, required: false,
+                description: 'Search by name or slug (case-insensitive contains)'
+      parameter name: 'q[themes_id_eq]', in: :query, type: :integer, required: false,
                 description: 'Filter by theme id (templates having that theme)'
-      parameter name: :tier_id, in: :query, type: :integer, required: false,
+      parameter name: 'q[tier_id_eq]', in: :query, type: :integer, required: false,
                 description: 'Filter by tier id'
 
       response '200', 'templates returned' do
@@ -71,6 +73,60 @@ RSpec.describe 'API V1 Templates', type: :request do
                }
 
         run_test!
+      end
+
+      response '200', 'templates filtered by name or slug' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:'q[name_or_slug_cont]') { 'wedding' }
+        before do
+          create(:template, name: 'Wedding Classic', slug: 'wedding-classic', created_by_user: super_admin)
+          create(:template, name: 'Birthday Bash',  slug: 'birthday-bash',  created_by_user: super_admin)
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: { status: { type: :string }, data: { type: :object } }
+
+        run_test! do |response|
+          slugs = JSON.parse(response.body)['data']['templates'].map { |t| t['slug'] }
+          expect(slugs).to eq([ 'wedding-classic' ])
+        end
+      end
+
+      response '200', 'templates filtered by theme id' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:theme) { create(:theme) }
+        let(:'q[themes_id_eq]') { theme.id }
+        before do
+          create(:template, created_by_user: super_admin).tap { |t| t.themes = [ theme ] }
+          create(:template, created_by_user: super_admin)
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: { status: { type: :string }, data: { type: :object } }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)['data']['templates'].length).to eq(1)
+        end
+      end
+
+      response '200', 'templates filtered by tier id' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:tier) { create(:tier) }
+        let(:'q[tier_id_eq]') { tier.id }
+        before do
+          create(:template, created_by_user: super_admin).tap { |t| t.tier = tier }
+          create(:template, created_by_user: super_admin)
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: { status: { type: :string }, data: { type: :object } }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)['data']['templates'].length).to eq(1)
+        end
       end
 
       response '401', 'not authenticated' do
@@ -520,7 +576,8 @@ RSpec.describe 'API V1 Templates', type: :request do
       other.themes = [ create(:theme) ]
       other.tier   = create(:tier)
 
-      get '/api/v1/super_admin/templates', headers: json_headers, params: { theme_id: theme.id, tier_id: tier.id }
+      get '/api/v1/super_admin/templates', headers: json_headers,
+          params: { q: { themes_id_eq: theme.id, tier_id_eq: tier.id } }
 
       expect(response).to have_http_status(:ok)
       ids = JSON.parse(response.body).dig('data', 'templates').map { |t| t['id'] }

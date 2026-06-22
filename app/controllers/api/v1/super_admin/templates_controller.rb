@@ -2,7 +2,7 @@ module Api
   module V1
     class SuperAdmin::TemplatesController < Api::V1::SuperAdmin::BaseController
       def index
-        result = Templates::ListService.call(theme_id: params[:theme_id], tier_id: params[:tier_id])
+        result = Templates::ListService.call(query: search_params)
         @pagy, @templates = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
@@ -44,6 +44,10 @@ module Api
         params.require(:template).permit(
           :slug, :name, :description, :published_at, :document, :tier_id, meta: {}, theme_ids: []
         )
+      end
+
+      def search_params
+        params.fetch(:q, {}).permit(:name_or_slug_cont, :themes_id_eq, :tier_id_eq)
       end
     end
   end

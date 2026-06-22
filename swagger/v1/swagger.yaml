@@ -198,13 +198,19 @@ paths:
         description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
-      - name: theme_id
+      - name: q[name_or_slug_cont]
+        in: query
+        required: false
+        description: Search by name or slug (case-insensitive contains)
+        schema:
+          type: string
+      - name: q[themes_id_eq]
         in: query
         required: false
         description: Filter by theme id (templates having that theme)
         schema:
           type: integer
-      - name: tier_id
+      - name: q[tier_id_eq]
         in: query
         required: false
         description: Filter by tier id
@@ -1822,13 +1828,19 @@ paths:
         description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
-      - name: theme_id
+      - name: q[name_or_slug_cont]
+        in: query
+        required: false
+        description: Search by name or slug (case-insensitive contains)
+        schema:
+          type: string
+      - name: q[themes_id_eq]
         in: query
         required: false
         description: Filter by theme id (templates having that theme)
         schema:
           type: integer
-      - name: tier_id
+      - name: q[tier_id_eq]
         in: query
         required: false
         description: Filter by tier id
@@ -1836,7 +1848,7 @@ paths:
           type: integer
       responses:
         '200':
-          description: templates returned
+          description: templates filtered by tier id
           content:
             application/json:
               schema:
@@ -2777,7 +2789,7 @@ paths:
                             type: string
                             format: date-time
         '422':
-          description: validation failed
+          description: price exceeds maximum
           content:
             application/json:
               schema:

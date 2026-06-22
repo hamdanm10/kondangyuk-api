@@ -13,9 +13,11 @@ RSpec.describe 'API V1 Public Templates', type: :request do
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
                 description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
-      parameter name: :theme_id, in: :query, type: :integer, required: false,
+      parameter name: 'q[name_or_slug_cont]', in: :query, type: :string, required: false,
+                description: 'Search by name or slug (case-insensitive contains)'
+      parameter name: 'q[themes_id_eq]', in: :query, type: :integer, required: false,
                 description: 'Filter by theme id (templates having that theme)'
-      parameter name: :tier_id, in: :query, type: :integer, required: false,
+      parameter name: 'q[tier_id_eq]', in: :query, type: :integer, required: false,
                 description: 'Filter by tier id'
 
       response '200', 'templates returned' do
@@ -147,6 +149,18 @@ RSpec.describe 'API V1 Public Templates', type: :request do
       slugs = JSON.parse(response.body).dig('data', 'templates').map { |t| t['slug'] }
       expect(slugs).to include('live-one')
       expect(slugs).not_to include('draft-one')
+    end
+
+    it 'filters published templates by name or slug via ransack' do
+      create(:template, :published, slug: 'wedding-classic', name: 'Wedding Classic')
+      create(:template, :published, slug: 'birthday-bash',   name: 'Birthday Bash')
+
+      get '/api/v1/guest/templates', params: { q: { name_or_slug_cont: 'wedding' } },
+                                     headers: { 'ACCEPT' => 'application/json' }
+
+      expect(response).to have_http_status(:ok)
+      slugs = JSON.parse(response.body).dig('data', 'templates').map { |t| t['slug'] }
+      expect(slugs).to eq([ 'wedding-classic' ])
     end
 
     it 'serves the catalog without any session cookie' do
