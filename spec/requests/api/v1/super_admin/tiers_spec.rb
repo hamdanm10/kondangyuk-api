@@ -167,6 +167,15 @@ RSpec.describe 'API V1 Tiers', type: :request do
         run_test!
       end
 
+      response '422', 'price exceeds maximum' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:body) { { tier: { name: 'Gold', price: 1_000_000 } } }
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test!
+      end
+
       response '401', 'not authenticated' do
         let(:body) { { tier: { name: 'Gold', price: 99_000 } } }
 
