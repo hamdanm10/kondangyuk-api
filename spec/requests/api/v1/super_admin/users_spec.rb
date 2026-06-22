@@ -11,7 +11,7 @@ RSpec.describe 'API V1 Users', type: :request do
       parameter name: :page,  in: :query, type: :integer, required: false,
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
-                description: 'Items per page (default: 10, max: 100)'
+                description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
 
       response '200', 'users returned' do
         let(:super_admin) { create(:user, :super_admin) }

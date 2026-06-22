@@ -11,7 +11,7 @@ RSpec.describe 'API V1 Templates', type: :request do
       parameter name: :page,  in: :query, type: :integer, required: false,
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
-                description: 'Items per page (default: 10, max: 100)'
+                description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
       parameter name: :theme_id, in: :query, type: :integer, required: false,
                 description: 'Filter by theme id (templates having that theme)'
       parameter name: :tier_id, in: :query, type: :integer, required: false,

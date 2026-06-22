@@ -64,3 +64,6 @@ end
 
 # Pagination
 gem "pagy", "~> 43.5"
+
+# Search
+gem "ransack"

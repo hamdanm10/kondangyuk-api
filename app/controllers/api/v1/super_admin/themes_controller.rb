@@ -2,8 +2,8 @@ module Api
   module V1
     class SuperAdmin::ThemesController < Api::V1::SuperAdmin::BaseController
       def index
-        result = Themes::ListService.call
-        @pagy, @themes = pagy(:offset, result.data[:collection])
+        result = Themes::ListService.call(query: search_params)
+        @pagy, @themes = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
 
@@ -42,6 +42,10 @@ module Api
 
       def theme_params
         params.require(:theme).permit(:name)
+      end
+
+      def search_params
+        params.fetch(:q, {}).permit(:name_cont)
       end
     end
   end

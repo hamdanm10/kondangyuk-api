@@ -1,6 +1,6 @@
 class ThemeRepository < BaseRepository
-  def list_all
-    Theme.active.order(:name)
+  def list_all(query = {})
+    Theme.active.ransack(query).result.order(:name)
   end
 
   def create_theme(name:)

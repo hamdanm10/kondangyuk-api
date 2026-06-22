@@ -9,7 +9,7 @@ RSpec.describe 'API V1 Orders', type: :request do
       security    [ cookieAuth: [] ]
 
       parameter name: :page,  in: :query, type: :integer, required: false, description: 'Page number'
-      parameter name: :limit, in: :query, type: :integer, required: false, description: 'Items per page'
+      parameter name: :limit, in: :query, type: :integer, required: false, description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
 
       response '200', 'orders returned' do
         let(:super_admin) { create(:user, :super_admin) }

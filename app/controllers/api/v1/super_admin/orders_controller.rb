@@ -3,7 +3,7 @@ module Api
     class SuperAdmin::OrdersController < Api::V1::SuperAdmin::BaseController
       def index
         result = Orders::ListService.call
-        @pagy, @orders = pagy(:offset, result.data[:collection])
+        @pagy, @orders = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
 

@@ -3,7 +3,7 @@ module Api
     class SuperAdmin::TiersController < Api::V1::SuperAdmin::BaseController
       def index
         result = Tiers::ListService.call
-        @pagy, @tiers = pagy(:offset, result.data[:collection])
+        @pagy, @tiers = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
 

@@ -24,6 +24,13 @@ module Api
       def current_session
         @current_session
       end
+
+      def paginate(collection)
+        limit = Pagination::ResolveLimitService.call(limit: params[:limit]).data[:limit]
+        # max_limit: false stops pagy from re-reading params[:limit]; the allowlist
+        # is already enforced by ResolveLimitService, so the resolved limit is final.
+        pagy(:offset, collection, limit: limit, max_limit: false)
+      end
     end
   end
 end

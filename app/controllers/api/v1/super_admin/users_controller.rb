@@ -3,7 +3,7 @@ module Api
     class SuperAdmin::UsersController < Api::V1::SuperAdmin::BaseController
       def index
         result = Users::ListService.call
-        @pagy, @users = pagy(:offset, result.data[:collection])
+        @pagy, @users = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
 

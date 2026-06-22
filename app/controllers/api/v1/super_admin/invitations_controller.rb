@@ -3,7 +3,7 @@ module Api
     class SuperAdmin::InvitationsController < Api::V1::SuperAdmin::BaseController
       def index
         result = Invitations::ListService.call
-        @pagy, @invitations = pagy(:offset, result.data[:collection])
+        @pagy, @invitations = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
 

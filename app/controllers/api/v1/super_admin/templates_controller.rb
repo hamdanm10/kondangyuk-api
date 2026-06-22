@@ -3,7 +3,7 @@ module Api
     class SuperAdmin::TemplatesController < Api::V1::SuperAdmin::BaseController
       def index
         result = Templates::ListService.call(theme_id: params[:theme_id], tier_id: params[:tier_id])
-        @pagy, @templates = pagy(:offset, result.data[:collection])
+        @pagy, @templates = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
 

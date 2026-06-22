@@ -195,7 +195,7 @@ paths:
       - name: limit
         in: query
         required: false
-        description: 'Items per page (default: 10, max: 100)'
+        description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
       - name: theme_id
@@ -1046,7 +1046,7 @@ paths:
       - name: limit
         in: query
         required: false
-        description: Items per page
+        description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
       responses:
@@ -1819,7 +1819,7 @@ paths:
       - name: limit
         in: query
         required: false
-        description: 'Items per page (default: 10, max: 100)'
+        description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
       - name: theme_id
@@ -2331,12 +2331,18 @@ paths:
       - name: limit
         in: query
         required: false
-        description: 'Items per page (default: 10, max: 100)'
+        description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
+      - name: q[name_cont]
+        in: query
+        required: false
+        description: Filter themes by name (case-insensitive contains)
+        schema:
+          type: string
       responses:
         '200':
-          description: themes returned
+          description: limit falls back to default when not allowed
           content:
             application/json:
               schema:
@@ -2664,7 +2670,7 @@ paths:
       - name: limit
         in: query
         required: false
-        description: 'Items per page (default: 10, max: 100)'
+        description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
       responses:
@@ -3013,7 +3019,7 @@ paths:
       - name: limit
         in: query
         required: false
-        description: 'Items per page (default: 10, max: 100)'
+        description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
       responses:

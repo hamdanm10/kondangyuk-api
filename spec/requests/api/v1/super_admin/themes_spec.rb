@@ -11,7 +11,9 @@ RSpec.describe 'API V1 Themes', type: :request do
       parameter name: :page,  in: :query, type: :integer, required: false,
                 description: 'Page number (default: 1)'
       parameter name: :limit, in: :query, type: :integer, required: false,
-                description: 'Items per page (default: 10, max: 100)'
+                description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
+      parameter name: 'q[name_cont]', in: :query, type: :string, required: false,
+                description: 'Filter themes by name (case-insensitive contains)'
 
       response '200', 'themes returned' do
         let(:super_admin) { create(:user, :super_admin) }
@@ -53,6 +55,63 @@ RSpec.describe 'API V1 Themes', type: :request do
                }
 
         run_test!
+      end
+
+      response '200', 'themes filtered by name' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:'q[name_cont]') { 'Dark' }
+        before do
+          create(:theme, name: 'Dark Mode')
+          create(:theme, name: 'Light Mode')
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'success' },
+                 data: {
+                   type: :object,
+                   properties: {
+                     themes: {
+                       type: :array,
+                       items: {
+                         type: :object,
+                         properties: {
+                           id:         { type: :integer },
+                           name:       { type: :string },
+                           created_at: { type: :string, format: 'date-time' }
+                         }
+                       }
+                     },
+                     pagination: { type: :object }
+                   }
+                 }
+               }
+
+        run_test! do |response|
+          names = JSON.parse(response.body)['data']['themes'].map { |t| t['name'] }
+          expect(names).to eq([ 'Dark Mode' ])
+        end
+      end
+
+      response '200', 'limit falls back to default when not allowed' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:limit) { 999 }
+        before do
+          create_list(:theme, 3)
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'success' },
+                 data:   { type: :object }
+               }
+
+        run_test! do |response|
+          limit_used = JSON.parse(response.body)['data']['pagination']['limit']
+          expect(limit_used).to eq(10)
+        end
       end
 
       response '401', 'not authenticated' do
