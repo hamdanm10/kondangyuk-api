@@ -2,7 +2,9 @@ namespace :api do
   namespace :v1 do
     namespace :super_admin do
       resource  :profile, only: [ :show ]
-      resources :users,  only: [ :index, :create ]
+      resources :users,  only: [ :index, :create ] do
+        resource :activation, only: [ :create, :destroy ], controller: "user_activations"
+      end
       resources :themes, only: [ :index, :show, :create, :update, :destroy ]
       resources :tiers,  only: [ :index, :show, :create, :update, :destroy ]
       resources :orders, only: [ :index, :show, :create, :update, :destroy ]

@@ -21,9 +21,11 @@ RSpec.describe 'API V1 Profile', type: :request do
                      user: {
                        type: :object,
                        properties: {
-                         id:    { type: :integer },
-                         email: { type: :string },
-                         role:  { type: :string, example: 'admin' }
+                         id:        { type: :integer },
+                         full_name: { type: :string },
+                         email:     { type: :string },
+                         role:      { type: :string, example: 'admin' },
+                         is_active: { type: :boolean, example: true }
                        }
                      }
                    }

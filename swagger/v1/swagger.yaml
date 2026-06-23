@@ -137,7 +137,7 @@ paths:
                           email:
                             type: string
         '422':
-          description: invalid credentials
+          description: account deactivated
           content:
             application/json:
               schema:
@@ -1478,11 +1478,16 @@ paths:
                         properties:
                           id:
                             type: integer
+                          full_name:
+                            type: string
                           email:
                             type: string
                           role:
                             type: string
                             example: admin
+                          is_active:
+                            type: boolean
+                            example: true
         '401':
           description: not authenticated
           content:
@@ -3123,12 +3128,144 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/super_admin/users":
-    get:
-      summary: List all admin users
+  "/api/v1/super_admin/users/{user_id}/activation":
+    parameters:
+    - name: user_id
+      in: path
+      required: true
+      description: User ID
+      schema:
+        type: integer
+    post:
+      summary: Activate user
       tags:
       - Super Admin | Users
-      description: Returns all users with role admin. Accessible by super_admin only.
+      description: Activates a user (sets is_active to true). Accessible by super_admin
+        only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: user activated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          full_name:
+                            type: string
+                          email:
+                            type: string
+                          role:
+                            type: string
+                            example: admin
+                          is_active:
+                            type: boolean
+                            example: true
+        '422':
+          description: super_admin cannot be activated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    delete:
+      summary: Deactivate user
+      tags:
+      - Super Admin | Users
+      description: Deactivates a user (sets is_active to false) and signs out any
+        active sessions. The user cannot log in while deactivated. Super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: user deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          full_name:
+                            type: string
+                          email:
+                            type: string
+                          role:
+                            type: string
+                            example: admin
+                          is_active:
+                            type: boolean
+                            example: false
+        '422':
+          description: super_admin cannot be deactivated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: user not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/users":
+    get:
+      summary: List users
+      tags:
+      - Super Admin | Users
+      description: Returns all users except super_admins, paginated. Searchable by
+        name and filterable by active state via ransack. Accessible by super_admin
+        only.
       security:
       - cookieAuth: []
       parameters:
@@ -3144,9 +3281,21 @@ paths:
         description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
+      - name: q[full_name_cont]
+        in: query
+        required: false
+        description: Search by name (case-insensitive contains)
+        schema:
+          type: string
+      - name: q[is_active_eq]
+        in: query
+        required: false
+        description: Filter by active state (true = active, false = inactive)
+        schema:
+          type: boolean
       responses:
         '200':
-          description: users returned
+          description: users filtered by name and active state
           content:
             application/json:
               schema:
@@ -3165,11 +3314,16 @@ paths:
                           properties:
                             id:
                               type: integer
+                            full_name:
+                              type: string
                             email:
                               type: string
                             role:
                               type: string
                               example: admin
+                            is_active:
+                              type: boolean
+                              example: true
                             created_at:
                               type: string
                               format: date-time
@@ -3209,10 +3363,11 @@ paths:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
     post:
-      summary: Create admin user
+      summary: Create user
       tags:
       - Super Admin | Users
-      description: Creates a new user with role admin. Accessible by super_admin only.
+      description: Creates a new user with any role except super_admin (defaults to
+        admin when omitted). Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters: []
@@ -3235,16 +3390,21 @@ paths:
                         properties:
                           id:
                             type: integer
+                          full_name:
+                            type: string
                           email:
                             type: string
                           role:
                             type: string
-                            example: admin
+                            example: designer
+                          is_active:
+                            type: boolean
+                            example: true
                           created_at:
                             type: string
                             format: date-time
         '422':
-          description: validation failed
+          description: super_admin role not allowed
           content:
             application/json:
               schema:
@@ -3270,13 +3430,23 @@ paths:
                 user:
                   type: object
                   properties:
+                    full_name:
+                      type: string
+                      example: New Admin
                     email:
                       type: string
                       example: newadmin@kondangyuk.test
                     password:
                       type: string
                       example: Password12345!
+                    role:
+                      type: string
+                      enum:
+                      - admin
+                      - designer
+                      example: admin
                   required:
+                  - full_name
                   - email
                   - password
         required: true

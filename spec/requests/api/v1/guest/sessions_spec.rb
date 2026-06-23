@@ -57,6 +57,21 @@ RSpec.describe 'API V1 Sessions', type: :request do
 
         run_test!
       end
+
+      response '422', 'account deactivated' do
+        let(:user) { create(:user, :inactive) }
+        let(:body) { { session: { email: user.email, password: 'Password12345!' } } }
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'fail' },
+                 data: { type: :object }
+               }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'account')).to be_present
+        end
+      end
     end
 
     delete 'Logout' do

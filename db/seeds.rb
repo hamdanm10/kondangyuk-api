@@ -1,5 +1,6 @@
 admin = User.find_or_initialize_by(email: "admin@kondangyuk.test")
 unless admin.persisted?
+  admin.full_name = "Admin Kondangyuk"
   admin.password = "AdminKondangyuk@2026"
   admin.role = "admin"
   admin.save!
@@ -8,6 +9,7 @@ end
 
 super_admin = User.find_or_initialize_by(email: "superadmin@kondangyuk.test")
 unless super_admin.persisted?
+  super_admin.full_name = "Super Admin Kondangyuk"
   super_admin.password = "SuperAdminKondangyuk@2026"
   super_admin.role = "super_admin"
   super_admin.save!
@@ -16,6 +18,7 @@ end
 
 designer = User.find_or_initialize_by(email: "designer@kondangyuk.test")
 unless designer.persisted?
+  designer.full_name = "Designer Kondangyuk"
   designer.password = "DesignerKondangyuk@2026"
   designer.role = "designer"
   designer.save!

@@ -2,7 +2,7 @@ module Api
   module V1
     class SuperAdmin::UsersController < Api::V1::SuperAdmin::BaseController
       def index
-        result = Users::ListService.call
+        result = Users::ListService.call(query: search_params)
         @pagy, @users = paginate(result.data[:collection])
         render_success(nil, :ok)
       end
@@ -20,7 +20,11 @@ module Api
       private
 
       def user_params
-        params.require(:user).permit(:email, :password)
+        params.require(:user).permit(:email, :password, :full_name, :role)
+      end
+
+      def search_params
+        params.fetch(:q, {}).permit(:full_name_cont, :is_active_eq)
       end
     end
   end

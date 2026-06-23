@@ -1,6 +1,7 @@
 module Authentication
   class LoginService < BaseService
     INVALID_CREDENTIALS = { credentials: [ "invalid email or password" ] }.freeze
+    ACCOUNT_DEACTIVATED = { account: [ "is deactivated" ] }.freeze
 
     # Pre-computed bcrypt digest used to equalize response time when the email
     # is not found, so timing cannot reveal whether the email is registered.
@@ -19,6 +20,10 @@ module Authentication
       # prevent user enumeration; the dummy comparison keeps timing constant.
       authenticated = user ? user.authenticate(@params[:password].to_s) : dummy_authenticate
       return ServiceResult.failure(INVALID_CREDENTIALS) unless authenticated
+
+      # Checked only after a valid password so deactivated accounts are not revealed
+      # to attackers probing with wrong passwords.
+      return ServiceResult.failure(ACCOUNT_DEACTIVATED) unless user.is_active?
 
       session_repository = SessionRepository.new
       # Enforce single active session per account: drop any existing sessions so
