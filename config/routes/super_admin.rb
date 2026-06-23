@@ -7,6 +7,11 @@ namespace :api do
       resources :tiers,  only: [ :index, :show, :create, :update, :destroy ]
       resources :orders, only: [ :index, :show, :create, :update, :destroy ]
 
+      namespace :autocomplete do
+        resources :themes, only: [ :index ]
+        resources :tiers,  only: [ :index ]
+      end
+
       resources :templates, only: [ :index, :show, :create, :update, :destroy ] do
         resource :document, only: [ :show, :update, :destroy ], controller: "template_documents" do
           resources :media, only: [ :index, :create, :destroy ], controller: "template_document_media"

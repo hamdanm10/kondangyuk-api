@@ -3,6 +3,10 @@ class TierRepository < BaseRepository
     Tier.active.ransack(query).result.order(:name)
   end
 
+  def autocomplete(query = {})
+    Tier.active.ransack(query).result.order(:name).limit(10).select(:id, :name)
+  end
+
   def find_by_id(id)
     Tier.active.find(id)
   end

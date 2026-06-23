@@ -3,6 +3,10 @@ class ThemeRepository < BaseRepository
     Theme.active.ransack(query).result.order(:name)
   end
 
+  def autocomplete(query = {})
+    Theme.active.ransack(query).result.order(:name).limit(10).select(:id, :name)
+  end
+
   def create_theme(name:)
     Theme.create!(name: name)
   end
