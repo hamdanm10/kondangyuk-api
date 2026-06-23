@@ -3,7 +3,7 @@ class TemplateRepository < BaseRepository
     scope = Template.active
     scope = scope.published if published_only
     scope.ransack(query).result
-         .order(:name)
+         .order(:created_at)
          .includes(:created_by_user, :themes, :tier)
   end
 
@@ -24,16 +24,19 @@ class TemplateRepository < BaseRepository
 
   def create_with_document(slug:, name:, description:, published_at:, created_by_user:, meta:, document:, themes: [], tier: nil)
     Template.transaction do
-      template = Template.create!(
+      template = Template.new(
         slug: slug,
         name: name,
         description: description,
         published_at: published_at,
         created_by_user: created_by_user
       )
-      template.create_template_document!(meta: meta || {}, document: document)
+      # Assign associations before save! so the model validations (tier required,
+      # at least one theme) see the final classification instead of a bare record.
       template.themes = themes
       template.tier   = tier
+      template.save!
+      template.create_template_document!(meta: meta || {}, document: document)
       template
     end
   end
@@ -43,9 +46,12 @@ class TemplateRepository < BaseRepository
   # never clobbers fields it didn't send. Themes/tier follow the same rule via sync_*.
   def update_template(template, attrs:, themes: [], tier: nil, sync_themes: false, sync_tier: false)
     Template.transaction do
-      template.update!(attrs)
+      template.assign_attributes(attrs)
+      # Apply the synced associations before save! so validations run against the final
+      # state; untouched associations keep their current persisted values.
       template.themes = themes if sync_themes
       template.tier   = tier   if sync_tier
+      template.save!
       template
     end
   end

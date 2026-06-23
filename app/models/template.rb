@@ -8,8 +8,15 @@ class Template < ApplicationRecord
   has_one  :template_tier, dependent: :destroy
   has_one  :tier, through: :template_tier
 
-  validates :slug, presence: true, uniqueness: true
+  SLUG_FORMAT = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
+
+  validates :slug, presence: true, uniqueness: true,
+                   format: { with: SLUG_FORMAT,
+                             message: "must be lowercase alphanumeric words separated by single hyphens" }
   validates :name, presence: true
+
+  validate :tier_must_be_present
+  validate :must_have_at_least_one_theme
 
   scope :active, -> { where(deleted_at: nil) }
   scope :published, -> { where.not(published_at: nil) }
@@ -24,5 +31,15 @@ class Template < ApplicationRecord
 
   def soft_deleted?
     deleted_at.present?
+  end
+
+  private
+
+  def tier_must_be_present
+    errors.add(:tier, "must be present") if tier.blank?
+  end
+
+  def must_have_at_least_one_theme
+    errors.add(:themes, "must have at least one theme") if themes.empty?
   end
 end

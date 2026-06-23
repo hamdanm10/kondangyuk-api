@@ -370,6 +370,110 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/autocomplete/themes":
+    get:
+      summary: Theme autocomplete
+      tags:
+      - Super Admin | Autocomplete
+      description: Lightweight theme lookup for select/autocomplete inputs. Returns
+        id and name only, capped at 10 results, searchable by name via ransack. Super_admin
+        only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: q[name_cont]
+        in: query
+        required: false
+        description: Filter themes by name (case-insensitive contains)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: themes filtered by name and capped at 10
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      themes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/autocomplete/tiers":
+    get:
+      summary: Tier autocomplete
+      tags:
+      - Super Admin | Autocomplete
+      description: Lightweight tier lookup for select/autocomplete inputs. Returns
+        id and name only, capped at 10 results, searchable by name via ransack. Super_admin
+        only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: q[name_cont]
+        in: query
+        required: false
+        description: Filter tiers by name (case-insensitive contains)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: tiers filtered by name and capped at 10
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      tiers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/super_admin/invitations/{invitation_id}/document/media":
     parameters:
     - name: invitation_id
@@ -1994,7 +2098,7 @@ paths:
                               name:
                                 type: string
         '422':
-          description: validation failed
+          description: themes missing
           content:
             application/json:
               schema:

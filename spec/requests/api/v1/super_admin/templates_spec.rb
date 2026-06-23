@@ -227,6 +227,47 @@ RSpec.describe 'API V1 Templates', type: :request do
         run_test!
       end
 
+      response '422', 'invalid slug format' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:body) { { template: { slug: 'Wedding Classic!', name: 'Wedding Classic', document: '# Wedding' } } }
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'slug')).to be_present
+        end
+      end
+
+      response '422', 'tier missing' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:theme) { create(:theme) }
+        let(:body) do
+          { template: { slug: 'wedding-classic', name: 'Wedding Classic',
+                        document: '# Wedding', theme_ids: [ theme.id ] } }
+        end
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'tier')).to be_present
+        end
+      end
+
+      response '422', 'themes missing' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:tier) { create(:tier) }
+        let(:body) do
+          { template: { slug: 'wedding-classic', name: 'Wedding Classic',
+                        document: '# Wedding', tier_id: tier.id, theme_ids: [] } }
+        end
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'themes')).to be_present
+        end
+      end
+
       response '401', 'not authenticated' do
         let(:body) { { template: { slug: 'x', name: 'X', document: '# x' } } }
 
