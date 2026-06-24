@@ -31,7 +31,7 @@ module Templates
       themes    = ThemeRepository.new.active_by_ids(requested).to_a
       return themes if themes.size == requested.size
 
-      ServiceResult.failure(theme_ids: [ "contains invalid or inactive themes" ])
+      ServiceResult.failure(theme_ids: [ I18n.t("messages.errors.invalid_themes") ])
     end
 
     def resolve_tier
@@ -40,7 +40,7 @@ module Templates
       tier = TierRepository.new.find_active(@params[:tier_id])
       return tier if tier
 
-      ServiceResult.failure(tier_id: [ "invalid or inactive tier" ])
+      ServiceResult.failure(tier_id: [ I18n.t("messages.errors.invalid_tier") ])
     end
   end
 end

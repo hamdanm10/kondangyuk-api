@@ -8,7 +8,7 @@ module Api
 
         def require_admin
           unless current_user.admin?
-            render_fail({ base: [ "Forbidden" ] }, :forbidden)
+            render_fail({ base: [ I18n.t("messages.errors.forbidden") ] }, :forbidden)
             false
           end
         end

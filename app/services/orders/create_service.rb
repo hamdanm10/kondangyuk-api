@@ -21,7 +21,7 @@ module Orders
     def invalid_status
       return nil if @params[:status].blank? || Order.statuses.key?(@params[:status])
 
-      ServiceResult.failure(status: [ "is not a valid order status" ])
+      ServiceResult.failure(status: [ I18n.t("messages.errors.invalid_order_status") ])
     end
   end
 end

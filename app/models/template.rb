@@ -12,7 +12,7 @@ class Template < ApplicationRecord
 
   validates :slug, presence: true, uniqueness: true,
                    format: { with: SLUG_FORMAT,
-                             message: "must be lowercase alphanumeric words separated by single hyphens" }
+                             message: ->(*) { I18n.t("messages.errors.slug_format") } }
   validates :name, presence: true
 
   validate :tier_must_be_present

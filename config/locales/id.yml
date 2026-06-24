@@ -1,0 +1,22 @@
+id:
+  messages:
+    errors:
+      not_authenticated: "Belum terautentikasi"
+      forbidden: "Akses ditolak"
+      not_found: "Data tidak ditemukan"
+      bad_request: "Permintaan tidak valid"
+      too_many_requests: "Terlalu banyak permintaan. Silakan coba lagi nanti."
+      invalid_credentials: "email atau kata sandi salah"
+      account_deactivated: "telah dinonaktifkan"
+      role_not_allowed: "tidak diizinkan"
+      super_admin_activation: "super_admin tidak dapat diaktifkan atau dinonaktifkan"
+      thumbnail_required: "wajib diisi"
+      thumbnail_not_image: "harus berupa gambar"
+      invalid_themes: "mengandung tema yang tidak valid atau tidak aktif"
+      invalid_tier: "tier tidak valid atau tidak aktif"
+      file_required: "wajib diisi"
+      file_invalid_type: "harus berupa gambar, audio, atau video"
+      invalid_order_status: "bukan status pesanan yang valid"
+      current_password_invalid: "tidak valid"
+      password_confirmation_mismatch: "tidak cocok dengan Kata sandi"
+      slug_format: "harus berupa kata alfanumerik huruf kecil yang dipisahkan tanda hubung tunggal"

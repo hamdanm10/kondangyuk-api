@@ -6,10 +6,10 @@ module Thumbnails
     end
 
     def call
-      return ServiceResult.failure(thumbnail: [ "is required" ]) if @file.blank?
+      return ServiceResult.failure(thumbnail: [ I18n.t("messages.errors.thumbnail_required") ]) if @file.blank?
 
       kind = @file.content_type.to_s.split("/").first
-      return ServiceResult.failure(thumbnail: [ "must be an image" ]) unless kind == "image"
+      return ServiceResult.failure(thumbnail: [ I18n.t("messages.errors.thumbnail_not_image") ]) unless kind == "image"
 
       ThumbnailRepository.new.attach(@record, @file)
       ServiceResult.success({ record: @record })

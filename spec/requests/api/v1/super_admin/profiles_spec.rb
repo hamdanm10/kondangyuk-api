@@ -63,6 +63,9 @@ RSpec.describe 'API V1 Profile', type: :request do
                   'Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
+      parameter name: 'Accept-Language', in: :header, type: :string, required: false,
+                description: 'Response language — "id" or "en" (default: en when absent/unsupported)'
+
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {

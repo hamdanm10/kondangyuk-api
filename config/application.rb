@@ -40,6 +40,13 @@ module KondangyukApi
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Internationalization — the front-end supports Indonesian and English. The
+    # request locale is resolved from the Accept-Language header (see ApplicationController),
+    # falling back to :en when absent or unsupported.
+    config.i18n.available_locales = [ :en, :id ]
+    config.i18n.default_locale = :en
+    config.i18n.fallbacks = [ :en ]
+
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.

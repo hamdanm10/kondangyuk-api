@@ -67,3 +67,6 @@ gem "pagy", "~> 43.5"
 
 # Search
 gem "ransack"
+
+# Internationalization — translations for ActiveRecord/ActiveModel default messages
+gem "rails-i18n"

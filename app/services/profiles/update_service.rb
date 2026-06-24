@@ -20,7 +20,7 @@ module Profiles
       return nil unless changing_password?
       return nil if @user.authenticate(@params[:current_password])
 
-      ServiceResult.failure(current_password: [ "is invalid" ])
+      ServiceResult.failure(current_password: [ I18n.t("messages.errors.current_password_invalid") ])
     end
 
     # A new password must be repeated identically in password_confirmation.
@@ -28,7 +28,7 @@ module Profiles
       return nil unless changing_password?
       return nil if @params[:password] == @params[:password_confirmation]
 
-      ServiceResult.failure(password_confirmation: [ "doesn't match Password" ])
+      ServiceResult.failure(password_confirmation: [ I18n.t("messages.errors.password_confirmation_mismatch") ])
     end
 
     def changing_password?

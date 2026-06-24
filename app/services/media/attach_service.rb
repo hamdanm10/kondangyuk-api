@@ -8,11 +8,11 @@ module Media
     end
 
     def call
-      return ServiceResult.failure(file: [ "is required" ]) if @file.blank?
+      return ServiceResult.failure(file: [ I18n.t("messages.errors.file_required") ]) if @file.blank?
 
       kind = @file.content_type.to_s.split("/").first
       unless ALLOWED_TYPES.include?(kind)
-        return ServiceResult.failure(file: [ "must be an image, audio or video" ])
+        return ServiceResult.failure(file: [ I18n.t("messages.errors.file_invalid_type") ])
       end
 
       attachment = MediaRepository.new.attach(@record, @file)

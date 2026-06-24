@@ -10,7 +10,7 @@ module Api
         @current_session = token && SessionRepository.new.find_by_token(token)
 
         unless @current_session
-          render_fail({ base: [ "Not authenticated" ] }, :unauthorized)
+          render_fail({ base: [ I18n.t("messages.errors.not_authenticated") ] }, :unauthorized)
           return false
         end
 

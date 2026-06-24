@@ -231,8 +231,10 @@ module Authentication
 
     def call
       user = UserRepository.new.find_by_email(@params[:email])
-      return ServiceResult.failure(email: ["not found"]) unless user
-      return ServiceResult.failure(password: ["invalid"]) unless user.authenticate(@params[:password])
+      return ServiceResult.failure(email: [I18n.t("messages.errors.not_found")]) unless user
+      unless user.authenticate(@params[:password])
+        return ServiceResult.failure(password: [I18n.t("messages.errors.invalid_credentials")])
+      end
 
       ServiceResult.success({ user: UserSerializer.new(user).as_json })
     end
@@ -368,10 +370,42 @@ render_error(message, status = :internal_server_error)
 
 **Mandatory rules:**
 - Success (2xx) responses MUST use a JBuilder view — the view handles the `status: "success"` envelope
+- The success envelope is exactly `{ "status": "success", "data": { ... } }` — there is NO `message`
+  field on success responses. NEVER add `json.message` to a JBuilder view.
 - Use `render_fail` for 4xx client errors (validation failures, not found, unauthorized)
 - Use `render_error` for 5xx server errors
 - HTTP status codes MUST be correct even though status is also in the body
 - NEVER use `render json:` directly in a controller for success responses
+- ALL user-facing messages in responses (fail/error messages, validation messages) MUST be
+  internationalized — see the [Internationalization (i18n)](#internationalization-i18n) section.
+  NEVER hardcode an English string as a response message.
+
+---
+
+## Internationalization (i18n)
+
+The front-end supports **Indonesian (`id`)** and **English (`en`)**. Every user-facing message
+returned by the API (validation errors, `render_fail`/`render_error` messages) MUST be localized.
+Success responses carry no message, so i18n applies only to error/validation output.
+
+- The request locale is resolved from the **`Accept-Language`** header by an `around_action` in
+  `ApplicationController` (`switch_locale`), falling back to `:en` when absent or unsupported.
+  Supported locales are configured in `config/application.rb` (`available_locales [:en, :id]`,
+  `default_locale :en`).
+- Translations live in `config/locales/en.yml` and `config/locales/id.yml` under the
+  `messages.errors.*` namespace. The `rails-i18n` gem provides the Indonesian translations for
+  default ActiveRecord/ActiveModel validation messages — model validation errors returned via
+  `record.errors.as_json` are localized automatically.
+
+**Mandatory rules:**
+- NEVER hardcode a user-facing message string. Always use `I18n.t("messages.errors.<key>")`.
+- Service `ServiceResult.failure` messages MUST use `I18n.t`, NOT literal strings.
+- Both `en.yml` and `id.yml` MUST be updated together — every key MUST exist in both locales.
+- NEVER call `I18n.t` where it is evaluated at class-load time (frozen constants, the `message:`
+  argument of `validates`). It would freeze the locale at boot. Use a per-request method call, or a
+  Proc for validation messages — e.g. `format: { with: SLUG_FORMAT, message: ->(*) { I18n.t(...) } }`.
+- A new endpoint that can return a localized message MUST cover it in a request spec for at least
+  one non-default locale (send `Accept-Language: id` and assert the translated message).
 
 ---
 

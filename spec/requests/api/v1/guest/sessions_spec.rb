@@ -8,6 +8,9 @@ RSpec.describe 'API V1 Sessions', type: :request do
       produces    'application/json'
       description 'Authenticates user and sets httpOnly session cookie. Rate limited to 10 requests/minute per IP.'
 
+      parameter name: 'Accept-Language', in: :header, type: :string, required: false,
+                description: 'Response language — "id" or "en" (default: en when absent/unsupported)'
+
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
@@ -55,7 +58,26 @@ RSpec.describe 'API V1 Sessions', type: :request do
                  data: { type: :object }
                }
 
-        run_test!
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'credentials'))
+            .to eq([ 'invalid email or password' ])
+        end
+      end
+
+      response '422', 'invalid credentials — Indonesian (Accept-Language: id)' do
+        let(:'Accept-Language') { 'id' }
+        let(:body) { { session: { email: 'wrong@example.com', password: 'wrongpassword' } } }
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string, example: 'fail' },
+                 data: { type: :object }
+               }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'credentials'))
+            .to eq([ 'email atau kata sandi salah' ])
+        end
       end
 
       response '422', 'account deactivated' do

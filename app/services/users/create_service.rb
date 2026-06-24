@@ -8,7 +8,7 @@ module Users
 
     def call
       role = @params[:role].presence || DEFAULT_ROLE
-      return ServiceResult.failure(role: [ "is not allowed" ]) unless allowed_roles.include?(role)
+      return ServiceResult.failure(role: [ I18n.t("messages.errors.role_not_allowed") ]) unless allowed_roles.include?(role)
 
       user = UserRepository.new.create_user(
         email: @params[:email],

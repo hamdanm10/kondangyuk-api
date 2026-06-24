@@ -7,7 +7,23 @@ class ApplicationController < ActionController::API
   rescue_from ActionController::ParameterMissing,  with: :bad_request
   rescue_from ActionController::TooManyRequests,   with: :rate_limited
 
+  around_action :switch_locale
+
   private
+
+  # Resolve the request locale from the Accept-Language header so every response
+  # (errors, validation messages and success messages) is returned in the client's
+  # language. Falls back to the default locale when absent or unsupported.
+  def switch_locale(&)
+    I18n.with_locale(locale_from_header, &)
+  end
+
+  def locale_from_header
+    tag = request.headers["Accept-Language"].to_s
+            .split(",").first.to_s.split(";").first.to_s.split("-").first.to_s.downcase
+    locale = tag.presence&.to_sym
+    I18n.available_locales.include?(locale) ? locale : I18n.default_locale
+  end
 
   def render_success(data = nil, status = :ok)
     @data = data
@@ -22,19 +38,19 @@ class ApplicationController < ActionController::API
     render json: { status: "error", message: message }, status: status
   end
 
-  def not_found(err)
-    render_fail({ base: [ err.message ] }, :not_found)
+  def not_found(_err)
+    render_fail({ base: [ I18n.t("messages.errors.not_found") ] }, :not_found)
   end
 
   def record_invalid(err)
     render_fail(err.record.errors.as_json, :unprocessable_entity)
   end
 
-  def bad_request(err)
-    render_fail({ base: [ err.message ] }, :bad_request)
+  def bad_request(_err)
+    render_fail({ base: [ I18n.t("messages.errors.bad_request") ] }, :bad_request)
   end
 
   def rate_limited
-    render_error("Too many requests. Please try again later.", :too_many_requests)
+    render_error(I18n.t("messages.errors.too_many_requests"), :too_many_requests)
   end
 end
