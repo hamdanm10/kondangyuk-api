@@ -9,6 +9,7 @@ class Template < ApplicationRecord
   has_one  :tier, through: :template_tier
 
   SLUG_FORMAT = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
+  MAX_THEMES  = 4
 
   validates :slug, presence: true, uniqueness: true,
                    format: { with: SLUG_FORMAT,
@@ -17,6 +18,7 @@ class Template < ApplicationRecord
 
   validate :tier_must_be_present
   validate :must_have_at_least_one_theme
+  validate :themes_within_limit
 
   scope :active, -> { where(deleted_at: nil) }
   scope :published, -> { where.not(published_at: nil) }
@@ -41,5 +43,11 @@ class Template < ApplicationRecord
 
   def must_have_at_least_one_theme
     errors.add(:themes, I18n.t("messages.errors.theme_required")) if themes.empty?
+  end
+
+  def themes_within_limit
+    return if themes.size <= MAX_THEMES
+
+    errors.add(:themes, I18n.t("messages.errors.theme_limit", count: MAX_THEMES))
   end
 end

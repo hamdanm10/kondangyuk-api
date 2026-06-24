@@ -272,6 +272,22 @@ RSpec.describe 'API V1 Templates', type: :request do
         end
       end
 
+      response '422', 'too many themes — exceeds the maximum of 4' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:tier) { create(:tier) }
+        let(:body) do
+          { template: { slug: 'wedding-classic', name: 'Wedding Classic',
+                        document: '# Wedding', tier_id: tier.id,
+                        theme_ids: create_list(:theme, 5).map(&:id) } }
+        end
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'themes')).to eq([ 'must have at most 4 themes' ])
+        end
+      end
+
       response '401', 'not authenticated' do
         let(:body) { { template: { slug: 'x', name: 'X', document: '# x' } } }
 

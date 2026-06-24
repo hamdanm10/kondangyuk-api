@@ -16,6 +16,7 @@ id:
       invalid_tier: "tier tidak valid atau tidak aktif"
       tier_required: "wajib diisi"
       theme_required: "wajib memilih minimal satu tema"
+      theme_limit: "maksimal %{count} tema"
       file_required: "wajib diisi"
       file_invalid_type: "harus berupa gambar, audio, atau video"
       invalid_order_status: "bukan status pesanan yang valid"

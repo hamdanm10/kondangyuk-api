@@ -16,6 +16,7 @@ en:
       invalid_tier: "invalid or inactive tier"
       tier_required: "must be present"
       theme_required: "must have at least one theme"
+      theme_limit: "must have at most %{count} themes"
       file_required: "is required"
       file_invalid_type: "must be an image, audio or video"
       invalid_order_status: "is not a valid order status"

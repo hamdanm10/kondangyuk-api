@@ -2596,7 +2596,7 @@ paths:
                               name:
                                 type: string
         '422':
-          description: themes missing
+          description: too many themes — exceeds the maximum of 4
           content:
             application/json:
               schema:
