@@ -5,13 +5,15 @@ namespace :api do
       resources :users,  only: [ :index, :create ] do
         resource :activation, only: [ :create, :destroy ], controller: "user_activations"
       end
-      resources :themes, only: [ :index, :show, :create, :update, :destroy ]
-      resources :tiers,  only: [ :index, :show, :create, :update, :destroy ]
-      resources :orders, only: [ :index, :show, :create, :update, :destroy ]
+      resources :themes,       only: [ :index, :show, :create, :update, :destroy ]
+      resources :tiers,        only: [ :index, :show, :create, :update, :destroy ]
+      resources :marketplaces, only: [ :index, :show, :create, :update, :destroy ]
+      resources :orders,       only: [ :index, :show, :create, :update, :destroy ]
 
       namespace :autocomplete do
-        resources :themes, only: [ :index ]
-        resources :tiers,  only: [ :index ]
+        resources :themes,       only: [ :index ]
+        resources :tiers,        only: [ :index ]
+        resources :marketplaces, only: [ :index ]
       end
 
       resources :templates, only: [ :index, :show, :create, :update, :destroy ] do
