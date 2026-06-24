@@ -3,7 +3,7 @@ class TemplateRepository < BaseRepository
     scope = Template.active
     scope = scope.published if published_only
     scope.ransack(query).result
-         .order(:created_at)
+         .order(created_at: :desc)
          .includes(:created_by_user, :themes, :tier, thumbnail_attachment: :blob)
   end
 
