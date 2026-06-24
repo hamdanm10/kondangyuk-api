@@ -1,7 +1,8 @@
 FactoryBot.define do
   factory :order do
     association :template
-    price  { 150_000.00 }
+    association :marketplace
+    sequence(:order_number) { |n| "ORD-#{n}" }
     status { :pending }
   end
 end

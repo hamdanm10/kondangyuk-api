@@ -1578,7 +1578,7 @@ paths:
                           properties:
                             id:
                               type: integer
-                            price:
+                            order_number:
                               type: string
                             status:
                               type: string
@@ -1590,6 +1590,13 @@ paths:
                                   type: integer
                                 slug:
                                   type: string
+                                name:
+                                  type: string
+                            marketplace:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
                                 name:
                                   type: string
                             created_at:
@@ -1613,8 +1620,9 @@ paths:
       summary: Create order
       tags:
       - Super Admin | Orders
-      description: Creates an order for a template (status defaults to pending). Accessible
-        by super_admin only.
+      description: Creates an order for a template (status defaults to pending). Price
+        is handled by the source marketplace, so the order records the marketplace
+        and its order number instead. Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters: []
@@ -1636,17 +1644,19 @@ paths:
                         properties:
                           id:
                             type: integer
-                          price:
+                          order_number:
                             type: string
                           status:
                             type: string
                           template:
                             type: object
+                          marketplace:
+                            type: object
                           created_at:
                             type: string
                             format: date-time
         '422':
-          description: validation failed
+          description: invalid status
           content:
             application/json:
               schema:
@@ -1674,9 +1684,11 @@ paths:
                   properties:
                     template_id:
                       type: integer
-                    price:
-                      type: number
-                      example: 150000
+                    marketplace_id:
+                      type: integer
+                    order_number:
+                      type: string
+                      example: SHP-123456789
                     status:
                       type: string
                       enum:
@@ -1687,7 +1699,8 @@ paths:
                       example: pending
                   required:
                   - template_id
-                  - price
+                  - marketplace_id
+                  - order_number
         required: true
   "/api/v1/super_admin/orders/{id}":
     get:
@@ -1737,8 +1750,8 @@ paths:
       summary: Update order
       tags:
       - Super Admin | Orders
-      description: Updates an order (price and/or status) by ID. Accessible by super_admin
-        only.
+      description: Updates an order (template, marketplace, order number and/or status)
+        by ID. Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters:
@@ -1794,8 +1807,10 @@ paths:
                   properties:
                     template_id:
                       type: integer
-                    price:
-                      type: number
+                    marketplace_id:
+                      type: integer
+                    order_number:
+                      type: string
                     status:
                       type: string
                       enum:

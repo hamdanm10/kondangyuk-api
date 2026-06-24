@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_170243) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_24_175841) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -75,10 +75,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_170243) do
 
   create_table "orders", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.decimal "price", precision: 10, scale: 2, null: false
+    t.bigint "marketplace_id", null: false
+    t.string "order_number", null: false
     t.enum "status", default: "pending", null: false, enum_type: "order_status"
     t.bigint "template_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["marketplace_id", "order_number"], name: "index_orders_on_marketplace_id_and_order_number", unique: true
     t.index ["template_id"], name: "index_orders_on_template_id"
   end
 
@@ -160,6 +162,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_170243) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "invitation_documents", "invitations"
   add_foreign_key "invitations", "orders"
+  add_foreign_key "orders", "marketplaces"
   add_foreign_key "orders", "templates"
   add_foreign_key "sessions", "users"
   add_foreign_key "template_documents", "templates"

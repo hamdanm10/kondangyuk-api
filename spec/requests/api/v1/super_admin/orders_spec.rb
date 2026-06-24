@@ -29,12 +29,16 @@ RSpec.describe 'API V1 Orders', type: :request do
                        items: {
                          type: :object,
                          properties: {
-                           id:     { type: :integer },
-                           price:  { type: :string },
-                           status: { type: :string, example: 'pending' },
+                           id:           { type: :integer },
+                           order_number: { type: :string },
+                           status:       { type: :string, example: 'pending' },
                            template: {
                              type: :object,
                              properties: { id: { type: :integer }, slug: { type: :string }, name: { type: :string } }
+                           },
+                           marketplace: {
+                             type: :object,
+                             properties: { id: { type: :integer }, name: { type: :string } }
                            },
                            created_at: { type: :string, format: 'date-time' }
                          }
@@ -64,7 +68,9 @@ RSpec.describe 'API V1 Orders', type: :request do
       tags        'Super Admin | Orders'
       consumes    'application/json'
       produces    'application/json'
-      description 'Creates an order for a template (status defaults to pending). Accessible by super_admin only.'
+      description 'Creates an order for a template (status defaults to pending). Price is handled by ' \
+                  'the source marketplace, so the order records the marketplace and its order number ' \
+                  'instead. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -73,19 +79,23 @@ RSpec.describe 'API V1 Orders', type: :request do
           order: {
             type: :object,
             properties: {
-              template_id: { type: :integer },
-              price:       { type: :number, example: 150_000 },
-              status:      { type: :string, enum: %w[pending working review completed], example: 'pending' }
+              template_id:    { type: :integer },
+              marketplace_id: { type: :integer },
+              order_number:   { type: :string, example: 'SHP-123456789' },
+              status:         { type: :string, enum: %w[pending working review completed], example: 'pending' }
             },
-            required: %w[template_id price]
+            required: %w[template_id marketplace_id order_number]
           }
         }
       }
 
       response '201', 'order created' do
         let(:super_admin) { create(:user, :super_admin) }
-        let(:template) { create(:template) }
-        let(:body) { { order: { template_id: template.id, price: 150_000 } } }
+        let(:template)    { create(:template) }
+        let(:marketplace) { create(:marketplace) }
+        let(:body) do
+          { order: { template_id: template.id, marketplace_id: marketplace.id, order_number: 'SHP-123456789' } }
+        end
         before { login_as(super_admin) }
 
         schema type: :object,
@@ -97,11 +107,12 @@ RSpec.describe 'API V1 Orders', type: :request do
                      order: {
                        type: :object,
                        properties: {
-                         id:     { type: :integer },
-                         price:  { type: :string },
-                         status: { type: :string },
-                         template: { type: :object },
-                         created_at: { type: :string, format: 'date-time' }
+                         id:           { type: :integer },
+                         order_number: { type: :string },
+                         status:       { type: :string },
+                         template:     { type: :object },
+                         marketplace:  { type: :object },
+                         created_at:   { type: :string, format: 'date-time' }
                        }
                      }
                    }
@@ -112,23 +123,41 @@ RSpec.describe 'API V1 Orders', type: :request do
 
       response '422', 'validation failed' do
         let(:super_admin) { create(:user, :super_admin) }
-        let(:template) { create(:template) }
-        let(:body) { { order: { template_id: template.id, price: -1, status: 'bogus' } } }
+        let(:template)    { create(:template) }
+        let(:marketplace) { create(:marketplace) }
+        # Missing order_number triggers the presence validation.
+        let(:body) { { order: { template_id: template.id, marketplace_id: marketplace.id } } }
         before { login_as(super_admin) }
 
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
 
+      response '422', 'invalid status' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:template)    { create(:template) }
+        let(:marketplace) { create(:marketplace) }
+        let(:body) do
+          { order: { template_id: template.id, marketplace_id: marketplace.id,
+                     order_number: 'SHP-1', status: 'bogus' } }
+        end
+        before { login_as(super_admin) }
+
+        schema '$ref' => '#/components/schemas/JSendFail'
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'status')).to be_present
+        end
+      end
+
       response '401', 'not authenticated' do
-        let(:body) { { order: { template_id: 1, price: 1 } } }
+        let(:body) { { order: { template_id: 1, marketplace_id: 1, order_number: 'X' } } }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
 
       response '403', 'forbidden — admin role cannot access' do
         let(:admin) { create(:user) }
-        let(:body) { { order: { template_id: 1, price: 1 } } }
+        let(:body) { { order: { template_id: 1, marketplace_id: 1, order_number: 'X' } } }
         before { login_as(admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
@@ -180,7 +209,8 @@ RSpec.describe 'API V1 Orders', type: :request do
       tags 'Super Admin | Orders'
       consumes 'application/json'
       produces 'application/json'
-      description 'Updates an order (price and/or status) by ID. Accessible by super_admin only.'
+      description 'Updates an order (template, marketplace, order number and/or status) by ID. ' \
+                  'Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :id, in: :path, type: :integer, required: true
       parameter name: :body, in: :body, required: true, schema: {
@@ -189,9 +219,10 @@ RSpec.describe 'API V1 Orders', type: :request do
           order: {
             type: :object,
             properties: {
-              template_id: { type: :integer },
-              price:       { type: :number },
-              status:      { type: :string, enum: %w[pending working review completed] }
+              template_id:    { type: :integer },
+              marketplace_id: { type: :integer },
+              order_number:   { type: :string },
+              status:         { type: :string, enum: %w[pending working review completed] }
             }
           }
         }
@@ -201,7 +232,7 @@ RSpec.describe 'API V1 Orders', type: :request do
         let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order) }
         let(:id) { order.id }
-        # Partial update (status only) must not clobber price/template_id.
+        # Partial update (status only) must not clobber marketplace/order_number/template_id.
         let(:body) { { order: { status: 'working' } } }
         before { login_as(super_admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
@@ -212,7 +243,7 @@ RSpec.describe 'API V1 Orders', type: :request do
         let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order) }
         let(:id) { order.id }
-        let(:body) { { order: { template_id: order.template_id, price: 1, status: 'bogus' } } }
+        let(:body) { { order: { template_id: order.template_id, status: 'bogus' } } }
         before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
@@ -221,7 +252,7 @@ RSpec.describe 'API V1 Orders', type: :request do
       response '404', 'order not found' do
         let(:super_admin) { create(:user, :super_admin) }
         let(:id) { 0 }
-        let(:body) { { order: { price: 1 } } }
+        let(:body) { { order: { status: 'working' } } }
         before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
@@ -229,7 +260,7 @@ RSpec.describe 'API V1 Orders', type: :request do
 
       response '401', 'not authenticated' do
         let(:id) { 1 }
-        let(:body) { { order: { price: 1 } } }
+        let(:body) { { order: { status: 'working' } } }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
@@ -237,7 +268,7 @@ RSpec.describe 'API V1 Orders', type: :request do
       response '403', 'forbidden — admin role cannot access' do
         let(:admin) { create(:user) }
         let(:id) { 1 }
-        let(:body) { { order: { price: 1 } } }
+        let(:body) { { order: { status: 'working' } } }
         before { login_as(admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!

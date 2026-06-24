@@ -14,9 +14,10 @@ module Orders
 
       order = repo.update_order(
         order,
-        template_id: @params[:template_id],
-        price:       @params[:price],
-        status:      @params[:status]
+        template_id:    @params[:template_id],
+        marketplace_id: @params[:marketplace_id],
+        order_number:   @params[:order_number],
+        status:         @params[:status]
       )
       ServiceResult.success({ order: order })
     end
