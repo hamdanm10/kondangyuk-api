@@ -4,7 +4,7 @@ class TemplateRepository < BaseRepository
     scope = scope.published if published_only
     scope.ransack(query).result
          .order(:created_at)
-         .includes(:created_by_user, :themes, :tier)
+         .includes(:created_by_user, :themes, :tier, thumbnail_attachment: :blob)
   end
 
   def find_by_id_or_slug(value)

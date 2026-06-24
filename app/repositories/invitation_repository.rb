@@ -1,6 +1,6 @@
 class InvitationRepository < BaseRepository
   def list_all
-    Invitation.includes(:order).order(created_at: :desc)
+    Invitation.includes(:order, thumbnail_attachment: :blob).order(created_at: :desc)
   end
 
   def find_by_id_or_slug(value)
