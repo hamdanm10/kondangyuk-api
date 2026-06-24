@@ -53,9 +53,10 @@ module KondangyukApi
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
-    # Enable cookie support for httpOnly session token authentication
+    # Enable cookie support for the httpOnly signed session_token cookie. Only ActionDispatch::Cookies
+    # is needed (it powers cookies.signed via secret_key_base); the Rails session store is not used —
+    # authentication is token-based, not session[]-based.
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore, key: "_kondangyuk_session"
 
     # Serve Active Storage files through stable, non-expiring proxy URLs so media
     # referenced inside documents stays shareable (public customer pages, snapshots).
