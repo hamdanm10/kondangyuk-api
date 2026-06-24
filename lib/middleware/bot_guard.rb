@@ -50,13 +50,13 @@ class BotGuard
   end
 
   def forbidden
-    json_response(403, { status: "fail", data: { base: [ "Forbidden" ] } })
+    json_response(403, { status: "fail", data: { base: [ I18n.t("messages.errors.forbidden") ] } })
   end
 
   def too_many_requests
     json_response(
       429,
-      { status: "error", message: "Too many requests. Please try again later." },
+      { status: "error", message: I18n.t("messages.errors.too_many_requests") },
       "Retry-After" => config.window.to_s
     )
   end

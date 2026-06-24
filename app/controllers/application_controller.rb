@@ -7,23 +7,7 @@ class ApplicationController < ActionController::API
   rescue_from ActionController::ParameterMissing,  with: :bad_request
   rescue_from ActionController::TooManyRequests,   with: :rate_limited
 
-  around_action :switch_locale
-
   private
-
-  # Resolve the request locale from the Accept-Language header so every response
-  # (errors, validation messages and success messages) is returned in the client's
-  # language. Falls back to the default locale when absent or unsupported.
-  def switch_locale(&)
-    I18n.with_locale(locale_from_header, &)
-  end
-
-  def locale_from_header
-    tag = request.headers["Accept-Language"].to_s
-            .split(",").first.to_s.split(";").first.to_s.split("-").first.to_s.downcase
-    locale = tag.presence&.to_sym
-    I18n.available_locales.include?(locale) ? locale : I18n.default_locale
-  end
 
   def render_success(data = nil, status = :ok)
     @data = data

@@ -36,10 +36,10 @@ class Template < ApplicationRecord
   private
 
   def tier_must_be_present
-    errors.add(:tier, "must be present") if tier.blank?
+    errors.add(:tier, I18n.t("messages.errors.tier_required")) if tier.blank?
   end
 
   def must_have_at_least_one_theme
-    errors.add(:themes, "must have at least one theme") if themes.empty?
+    errors.add(:themes, I18n.t("messages.errors.theme_required")) if themes.empty?
   end
 end

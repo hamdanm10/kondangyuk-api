@@ -21,6 +21,7 @@ Bundler.require(*Rails.groups)
 # Rack middleware referenced while building the stack at boot — required eagerly and kept out of
 # the Zeitwerk autoloader (see the `middleware` ignore on autoload_lib below).
 require_relative "../lib/middleware/bot_guard"
+require_relative "../lib/middleware/locale_middleware"
 
 module KondangyukApi
   class Application < Rails::Application
@@ -40,9 +41,9 @@ module KondangyukApi
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Internationalization — the front-end supports Indonesian and English. The
-    # request locale is resolved from the Accept-Language header (see ApplicationController),
-    # falling back to :en when absent or unsupported.
+    # Internationalization — the front-end supports Indonesian and English. The request locale is
+    # resolved from the Accept-Language header by LocaleMiddleware (see below), falling back to :en
+    # when absent or unsupported.
     config.i18n.available_locales = [ :en, :id ]
     config.i18n.default_locale = :en
     config.i18n.fallbacks = [ :en ]
@@ -68,5 +69,10 @@ module KondangyukApi
 
     # Rate-limit and block scraper/AI bots on public + asset routes (see lib/middleware/bot_guard.rb).
     config.middleware.use BotGuard
+
+    # Resolve the request locale from Accept-Language and keep it active for the whole request,
+    # including rescue_from rendering. Inserted before BotGuard so even BotGuard's own responses are
+    # localized (see lib/middleware/locale_middleware.rb).
+    config.middleware.insert_before BotGuard, LocaleMiddleware
   end
 end

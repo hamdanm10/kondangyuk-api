@@ -152,6 +152,9 @@ RSpec.describe 'API V1 Templates', type: :request do
                   'user. Accessible by super_admin only.'
       security    [ cookieAuth: [] ]
 
+      parameter name: 'Accept-Language', in: :header, type: :string, required: false,
+                description: 'Response language — "id" or "en" (default: en when absent/unsupported)'
+
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
@@ -238,8 +241,9 @@ RSpec.describe 'API V1 Templates', type: :request do
         end
       end
 
-      response '422', 'tier missing' do
+      response '422', 'tier missing — Indonesian (Accept-Language: id)' do
         let(:super_admin) { create(:user, :super_admin) }
+        let(:'Accept-Language') { 'id' }
         let(:theme) { create(:theme) }
         let(:body) do
           { template: { slug: 'wedding-classic', name: 'Wedding Classic',
@@ -249,7 +253,7 @@ RSpec.describe 'API V1 Templates', type: :request do
 
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test! do |response|
-          expect(JSON.parse(response.body).dig('data', 'tier')).to be_present
+          expect(JSON.parse(response.body).dig('data', 'tier')).to eq([ 'wajib diisi' ])
         end
       end
 
@@ -264,7 +268,7 @@ RSpec.describe 'API V1 Templates', type: :request do
 
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test! do |response|
-          expect(JSON.parse(response.body).dig('data', 'themes')).to be_present
+          expect(JSON.parse(response.body).dig('data', 'themes')).to eq([ 'must have at least one theme' ])
         end
       end
 

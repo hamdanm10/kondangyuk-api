@@ -14,6 +14,8 @@ en:
       thumbnail_not_image: "must be an image"
       invalid_themes: "contains invalid or inactive themes"
       invalid_tier: "invalid or inactive tier"
+      tier_required: "must be present"
+      theme_required: "must have at least one theme"
       file_required: "is required"
       file_invalid_type: "must be an image, audio or video"
       invalid_order_status: "is not a valid order status"

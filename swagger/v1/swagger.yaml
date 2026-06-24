@@ -2146,7 +2146,13 @@ paths:
         from the authenticated user. Accessible by super_admin only.
       security:
       - cookieAuth: []
-      parameters: []
+      parameters:
+      - name: Accept-Language
+        in: header
+        required: false
+        description: 'Response language — "id" or "en" (default: en when absent/unsupported)'
+        schema:
+          type: string
       responses:
         '201':
           description: template created
