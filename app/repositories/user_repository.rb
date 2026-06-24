@@ -24,6 +24,11 @@ class UserRepository < BaseRepository
     User.create!(email: email, password: password, role: role, full_name: full_name)
   end
 
+  def update_user(user, attributes)
+    user.update!(attributes)
+    user
+  end
+
   private
 
   def model

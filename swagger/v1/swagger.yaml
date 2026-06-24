@@ -1506,6 +1506,89 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+    patch:
+      summary: Update own account
+      tags:
+      - Super Admin | Profiles
+      description: Updates the authenticated user own account (full_name, email and
+        optionally password). Changing the password requires the correct current_password
+        and a matching password_confirmation. role and is_active cannot be changed
+        here. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: account updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          full_name:
+                            type: string
+                          email:
+                            type: string
+                          role:
+                            type: string
+                            example: super_admin
+                          is_active:
+                            type: boolean
+                            example: true
+        '422':
+          description: validation failure — invalid email
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: object
+                  properties:
+                    full_name:
+                      type: string
+                      example: Updated Name
+                    email:
+                      type: string
+                      example: updated@kondangyuk.test
+                    password:
+                      type: string
+                      example: NewPassword12345!
+                    password_confirmation:
+                      type: string
+                      example: NewPassword12345!
+                    current_password:
+                      type: string
+                      example: Password12345!
+        required: true
   "/api/v1/super_admin/templates/{template_id}/document/media":
     parameters:
     - name: template_id

@@ -1,7 +1,7 @@
 namespace :api do
   namespace :v1 do
     namespace :super_admin do
-      resource  :profile, only: [ :show ]
+      resource  :profile, only: [ :show, :update ]
       resources :users,  only: [ :index, :create ] do
         resource :activation, only: [ :create, :destroy ], controller: "user_activations"
       end
