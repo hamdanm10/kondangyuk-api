@@ -7,6 +7,10 @@ class TemplateRepository < BaseRepository
          .includes(:created_by_user, :themes, :tier, thumbnail_attachment: :blob)
   end
 
+  def autocomplete(query = {})
+    Template.active.published.ransack(query).result.order(:name).limit(10).select(:id, :name, :slug)
+  end
+
   def find_by_id_or_slug(value)
     scope = Template.active.includes(:themes, :tier)
     if value.to_s.match?(/\A\d+\z/)

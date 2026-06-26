@@ -428,6 +428,60 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/autocomplete/templates":
+    get:
+      summary: Template autocomplete
+      tags:
+      - Super Admin | Autocomplete
+      description: Lightweight template lookup for select/autocomplete inputs. Returns
+        id, name and slug only, capped at 10 results, searchable by name via ransack.
+        Only published (and non-deleted) templates are returned. Super_admin only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: q[name_cont]
+        in: query
+        required: false
+        description: Filter templates by name (case-insensitive contains)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: published templates filtered by name and capped at 10
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      templates:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            slug:
+                              type: string
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/super_admin/autocomplete/themes":
     get:
       summary: Theme autocomplete

@@ -14,6 +14,7 @@ namespace :api do
         resources :themes,       only: [ :index ]
         resources :tiers,        only: [ :index ]
         resources :marketplaces, only: [ :index ]
+        resources :templates,    only: [ :index ]
       end
 
       resources :templates, only: [ :index, :show, :create, :update, :destroy ] do
