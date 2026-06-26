@@ -12,6 +12,11 @@ class InvitationRepository < BaseRepository
     Invitation.published.find_by!(slug: slug)
   end
 
+  def set_published(invitation, published_at:)
+    invitation.update!(published_at: published_at)
+    invitation
+  end
+
   private
 
   def model

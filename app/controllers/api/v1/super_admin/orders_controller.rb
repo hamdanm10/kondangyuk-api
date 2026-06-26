@@ -44,7 +44,7 @@ module Api
       private
 
       def order_params
-        params.require(:order).permit(:template_id, :marketplace_id, :order_number, :status)
+        params.require(:order).permit(:template_id, :marketplace_id, :order_number)
       end
 
       def invitation_params

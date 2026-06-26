@@ -125,8 +125,7 @@ RSpec.describe 'API V1 Orders', type: :request do
             properties: {
               template_id:    { type: :integer },
               marketplace_id: { type: :integer },
-              order_number:   { type: :string, example: 'SHP-123456789' },
-              status:         { type: :string, enum: %w[pending working review completed], example: 'pending' }
+              order_number:   { type: :string, example: 'SHP-123456789' }
             },
             required: %w[template_id marketplace_id order_number]
           },
@@ -207,21 +206,6 @@ RSpec.describe 'API V1 Orders', type: :request do
         end
       end
 
-      response '422', 'invalid status' do
-        let(:super_admin) { create(:user, :super_admin) }
-        let(:template)    { create(:template, :with_document) }
-        let(:marketplace) { create(:marketplace) }
-        let(:body) do
-          {
-            order:      { template_id: template.id, marketplace_id: marketplace.id, order_number: 'SHP-1', status: 'bogus' },
-            invitation: { name: 'Wedding Andi & Sari', slug: 'andi-sari' }
-          }
-        end
-        before { login_as(super_admin) }
-        schema '$ref' => '#/components/schemas/JSendFail'
-        run_test!
-      end
-
       response '401', 'not authenticated' do
         let(:body) do
           { order: { template_id: 1, marketplace_id: 1, order_number: 'X' }, invitation: { name: 'N', slug: 's' } }
@@ -300,8 +284,7 @@ RSpec.describe 'API V1 Orders', type: :request do
             properties: {
               template_id:    { type: :integer },
               marketplace_id: { type: :integer },
-              order_number:   { type: :string },
-              status:         { type: :string, enum: %w[pending working review completed] }
+              order_number:   { type: :string }
             }
           },
           invitation: {
@@ -320,30 +303,20 @@ RSpec.describe 'API V1 Orders', type: :request do
         let(:super_admin) { create(:user, :super_admin) }
         let(:order) { create(:order, :with_invitation) }
         let(:id) { order.id }
-        let(:body) { { order: { status: 'working' }, invitation: { name: 'Wedding Budi & Wati' } } }
+        let(:body) { { order: { order_number: 'SHP-UPDATED' }, invitation: { name: 'Wedding Budi & Wati' } } }
         before { login_as(super_admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
         run_test! do |response|
           data = JSON.parse(response.body)['data']
-          expect(data.dig('order', 'status')).to eq('working')
+          expect(data.dig('order', 'order_number')).to eq('SHP-UPDATED')
           expect(data.dig('invitation', 'name')).to eq('Wedding Budi & Wati')
         end
-      end
-
-      response '422', 'invalid status' do
-        let(:super_admin) { create(:user, :super_admin) }
-        let(:order) { create(:order, :with_invitation) }
-        let(:id) { order.id }
-        let(:body) { { order: { status: 'bogus' }, invitation: { name: 'X' } } }
-        before { login_as(super_admin) }
-        schema '$ref' => '#/components/schemas/JSendFail'
-        run_test!
       end
 
       response '404', 'order not found' do
         let(:super_admin) { create(:user, :super_admin) }
         let(:id) { 0 }
-        let(:body) { { order: { status: 'working' }, invitation: { name: 'X' } } }
+        let(:body) { { order: { order_number: 'X' }, invitation: { name: 'X' } } }
         before { login_as(super_admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
@@ -351,7 +324,7 @@ RSpec.describe 'API V1 Orders', type: :request do
 
       response '401', 'not authenticated' do
         let(:id) { 1 }
-        let(:body) { { order: { status: 'working' }, invitation: { name: 'X' } } }
+        let(:body) { { order: { order_number: 'X' }, invitation: { name: 'X' } } }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!
       end
@@ -359,7 +332,7 @@ RSpec.describe 'API V1 Orders', type: :request do
       response '403', 'forbidden — admin role cannot access' do
         let(:admin) { create(:user) }
         let(:id) { 1 }
-        let(:body) { { order: { status: 'working' }, invitation: { name: 'X' } } }
+        let(:body) { { order: { order_number: 'X' }, invitation: { name: 'X' } } }
         before { login_as(admin) }
         schema '$ref' => '#/components/schemas/JSendFail'
         run_test!

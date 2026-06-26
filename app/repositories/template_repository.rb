@@ -64,6 +64,11 @@ class TemplateRepository < BaseRepository
     template.update!(deleted_at: Time.current)
   end
 
+  def set_published(template, published_at:)
+    template.update!(published_at: published_at)
+    template
+  end
+
   private
 
   def model

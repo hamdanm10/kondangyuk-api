@@ -8,7 +8,10 @@ namespace :api do
       resources :themes,       only: [ :index, :show, :create, :update, :destroy ]
       resources :tiers,        only: [ :index, :show, :create, :update, :destroy ]
       resources :marketplaces, only: [ :index, :show, :create, :update, :destroy ]
-      resources :orders,       only: [ :index, :show, :create, :update, :destroy ]
+      resources :orders, only: [ :index, :show, :create, :update, :destroy ] do
+        # Focused status change (e.g. a kanban move) without sending the full nested order form.
+        resource :status, only: [ :update ], controller: "order_statuses"
+      end
 
       namespace :autocomplete do
         resources :themes,       only: [ :index ]
@@ -22,6 +25,8 @@ namespace :api do
           resources :media, only: [ :index, :create, :destroy ], controller: "template_document_media"
         end
         resource :thumbnail, only: [ :show, :update, :destroy ], controller: "template_thumbnails"
+        # POST publishes (sets published_at), DELETE unpublishes (clears published_at).
+        resource :publication, only: [ :create, :destroy ], controller: "template_publications"
       end
 
       # Invitations are created/updated/deleted through their order (Order has_one Invitation).
@@ -32,6 +37,8 @@ namespace :api do
           resources :media, only: [ :index, :create, :destroy ], controller: "invitation_document_media"
         end
         resource :thumbnail, only: [ :show, :update, :destroy ], controller: "invitation_thumbnails"
+        # POST publishes (sets published_at), DELETE unpublishes (clears published_at).
+        resource :publication, only: [ :create, :destroy ], controller: "invitation_publications"
       end
     end
   end

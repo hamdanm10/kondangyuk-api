@@ -855,6 +855,124 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/invitations/{invitation_id}/publication":
+    parameters:
+    - name: invitation_id
+      in: path
+      required: true
+      description: Invitation ID
+      schema:
+        type: integer
+    post:
+      summary: Publish invitation
+      tags:
+      - Super Admin | Invitations
+      description: Publishes an invitation by setting published_at to the current
+        time, making it visible on its public page. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: invitation published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      invitation:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          published_at:
+                            type: string
+                            format: date-time
+                          expires_at:
+                            type: string
+                            nullable: true
+        '404':
+          description: invitation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    delete:
+      summary: Unpublish invitation
+      tags:
+      - Super Admin | Invitations
+      description: Unpublishes an invitation by clearing published_at. Accessible
+        by super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: invitation unpublished
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      invitation:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          published_at:
+                            type: string
+                            nullable: true
+                          expires_at:
+                            type: string
+                            nullable: true
+        '404':
+          description: invitation not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
   "/api/v1/super_admin/invitations/{invitation_id}/thumbnail":
     parameters:
     - name: invitation_id
@@ -1347,6 +1465,100 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/orders/{order_id}/status":
+    parameters:
+    - name: order_id
+      in: path
+      required: true
+      description: Order ID
+      schema:
+        type: integer
+    patch:
+      summary: Change order status
+      tags:
+      - Super Admin | Orders
+      description: Changes only the order status (pending|working|review|completed)
+        without sending the full order form. Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      parameters:
+      - name: Accept-Language
+        in: header
+        required: false
+        description: 'Response language — "id" or "en" (default: en when absent/unsupported)'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: status changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      order:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          order_number:
+                            type: string
+                          status:
+                            type: string
+                            example: working
+                          updated_at:
+                            type: string
+                            format: date-time
+        '422':
+          description: 'invalid status — Indonesian (Accept-Language: id)'
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '404':
+          description: order not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order:
+                  type: object
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                      - pending
+                      - working
+                      - review
+                      - completed
+                      example: working
+                  required:
+                  - status
+        required: true
   "/api/v1/super_admin/orders":
     get:
       summary: List all orders
@@ -1496,7 +1708,7 @@ paths:
                       invitation:
                         type: object
         '422':
-          description: invalid status
+          description: invalid invitation — missing slug
           content:
             application/json:
               schema:
@@ -1529,14 +1741,6 @@ paths:
                     order_number:
                       type: string
                       example: SHP-123456789
-                    status:
-                      type: string
-                      enum:
-                      - pending
-                      - working
-                      - review
-                      - completed
-                      example: pending
                   required:
                   - template_id
                   - marketplace_id
@@ -1632,12 +1836,6 @@ paths:
                     type: string
                   data:
                     type: object
-        '422':
-          description: invalid status
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
         '404':
           description: order not found
           content:
@@ -1671,13 +1869,6 @@ paths:
                       type: integer
                     order_number:
                       type: string
-                    status:
-                      type: string
-                      enum:
-                      - pending
-                      - working
-                      - review
-                      - completed
                 invitation:
                   type: object
                   properties:
@@ -2169,6 +2360,118 @@ paths:
                     type: object
         '404':
           description: template or document not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+  "/api/v1/super_admin/templates/{template_id}/publication":
+    parameters:
+    - name: template_id
+      in: path
+      required: true
+      description: Template ID
+      schema:
+        type: integer
+    post:
+      summary: Publish template
+      tags:
+      - Super Admin | Templates
+      description: Publishes a template by setting published_at to the current time.
+        Accessible by super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: template published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      template:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          published_at:
+                            type: string
+                            format: date-time
+        '404':
+          description: template not found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '401':
+          description: not authenticated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+        '403':
+          description: forbidden — admin role cannot access
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/JSendFail"
+    delete:
+      summary: Unpublish template
+      tags:
+      - Super Admin | Templates
+      description: Unpublishes a template by clearing published_at. Accessible by
+        super_admin only.
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: template unpublished
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      template:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          slug:
+                            type: string
+                          name:
+                            type: string
+                          published_at:
+                            type: string
+                            nullable: true
+        '404':
+          description: template not found
           content:
             application/json:
               schema:
