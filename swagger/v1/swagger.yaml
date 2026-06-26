@@ -906,135 +906,14 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
-  "/api/v1/super_admin/invitations":
-    get:
-      summary: List all invitations
-      tags:
-      - Super Admin | Invitations
-      description: Returns all invitations with pagination. Accessible by super_admin
-        only.
-      security:
-      - cookieAuth: []
-      parameters:
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-      responses:
-        '200':
-          description: invitations returned
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  data:
-                    type: object
-        '401':
-          description: not authenticated
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '403':
-          description: forbidden — admin role cannot access
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-    post:
-      summary: Create invitation (snapshot of the order template)
-      tags:
-      - Super Admin | Invitations
-      description: Creates an invitation as an immutable snapshot of the order template
-        document (meta + MDX copied into invitation_document). name/description default
-        to the template's when omitted. Accessible by super_admin only.
-      security:
-      - cookieAuth: []
-      parameters: []
-      responses:
-        '201':
-          description: invitation created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  data:
-                    type: object
-        '422':
-          description: validation failed
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '404':
-          description: order not found
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '401':
-          description: not authenticated
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '403':
-          description: forbidden — admin role cannot access
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                invitation:
-                  type: object
-                  properties:
-                    order_id:
-                      type: integer
-                    slug:
-                      type: string
-                      example: andi-and-budi
-                    name:
-                      type: string
-                      nullable: true
-                    description:
-                      type: string
-                      nullable: true
-                    published_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                    expires_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                  required:
-                  - order_id
-                  - slug
-        required: true
   "/api/v1/super_admin/invitations/{id}":
     get:
       summary: Show invitation
       tags:
       - Super Admin | Invitations
-      description: Returns a single invitation by ID or slug. Accessible by super_admin
-        only.
+      description: Returns a single invitation by ID or slug. Invitations are created,
+        updated and deleted through their order; this read-only detail stays available.
+        Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters:
@@ -1047,128 +926,6 @@ paths:
       responses:
         '200':
           description: invitation returned
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  data:
-                    type: object
-        '404':
-          description: invitation not found
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '401':
-          description: not authenticated
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '403':
-          description: forbidden — admin role cannot access
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-    patch:
-      summary: Update invitation
-      tags:
-      - Super Admin | Invitations
-      description: Updates invitation metadata by ID or slug. Accessible by super_admin
-        only.
-      security:
-      - cookieAuth: []
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: invitation updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  data:
-                    type: object
-        '422':
-          description: validation failed
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '404':
-          description: invitation not found
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '401':
-          description: not authenticated
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-        '403':
-          description: forbidden — admin role cannot access
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/JSendFail"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                invitation:
-                  type: object
-                  properties:
-                    slug:
-                      type: string
-                    name:
-                      type: string
-                    description:
-                      type: string
-                      nullable: true
-                    published_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                    expires_at:
-                      type: string
-                      format: date-time
-                      nullable: true
-                  required:
-                  - slug
-                  - name
-        required: true
-    delete:
-      summary: Delete invitation
-      tags:
-      - Super Admin | Invitations
-      description: Permanently deletes an invitation by ID or slug (hard delete, cascades
-        to its document). Accessible by super_admin only.
-      security:
-      - cookieAuth: []
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: invitation deleted
           content:
             application/json:
               schema:
@@ -1541,7 +1298,8 @@ paths:
       summary: List all orders
       tags:
       - Super Admin | Orders
-      description: Returns all orders with pagination. Accessible by super_admin only.
+      description: Returns all orders (each with its invitation) with pagination,
+        search and filtering. Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters:
@@ -1557,9 +1315,45 @@ paths:
         description: 'Items per page — allowed: 10, 30, 50 (other/over → 10)'
         schema:
           type: integer
+      - name: q[order_number_cont]
+        in: query
+        required: false
+        description: Search by order number (case-insensitive contains)
+        schema:
+          type: string
+      - name: q[invitation_name_cont]
+        in: query
+        required: false
+        description: Search by invitation name (case-insensitive contains)
+        schema:
+          type: string
+      - name: q[invitation_slug_cont]
+        in: query
+        required: false
+        description: Search by invitation slug (case-insensitive contains)
+        schema:
+          type: string
+      - name: q[status_eq]
+        in: query
+        required: false
+        description: Filter by status (pending|working|review|completed)
+        schema:
+          type: string
+      - name: q[marketplace_id_eq]
+        in: query
+        required: false
+        description: Filter by marketplace id
+        schema:
+          type: integer
+      - name: q[template_id_eq]
+        in: query
+        required: false
+        description: Filter by template id
+        schema:
+          type: integer
       responses:
         '200':
-          description: orders returned
+          description: orders searched by order number
           content:
             application/json:
               schema:
@@ -1585,6 +1379,10 @@ paths:
                               example: pending
                             template:
                               type: object
+                            marketplace:
+                              type: object
+                            invitation:
+                              type: object
                               properties:
                                 id:
                                   type: integer
@@ -1592,13 +1390,12 @@ paths:
                                   type: string
                                 name:
                                   type: string
-                            marketplace:
-                              type: object
-                              properties:
-                                id:
-                                  type: integer
-                                name:
+                                published_at:
                                   type: string
+                                  nullable: true
+                                expires_at:
+                                  type: string
+                                  nullable: true
                             created_at:
                               type: string
                               format: date-time
@@ -1617,18 +1414,19 @@ paths:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
     post:
-      summary: Create order
+      summary: Create order with its invitation
       tags:
       - Super Admin | Orders
-      description: Creates an order for a template (status defaults to pending). Price
-        is handled by the source marketplace, so the order records the marketplace
-        and its order number instead. Accessible by super_admin only.
+      description: Creates an order and its invitation in one atomic call (Order has_one
+        Invitation). The invitation snapshots the order template document; published_at
+        starts empty and expires_at is set to 6 months from now. Accessible by super_admin
+        only.
       security:
       - cookieAuth: []
       parameters: []
       responses:
         '201':
-          description: order created
+          description: order and invitation created
           content:
             application/json:
               schema:
@@ -1641,20 +1439,8 @@ paths:
                     properties:
                       order:
                         type: object
-                        properties:
-                          id:
-                            type: integer
-                          order_number:
-                            type: string
-                          status:
-                            type: string
-                          template:
-                            type: object
-                          marketplace:
-                            type: object
-                          created_at:
-                            type: string
-                            format: date-time
+                      invitation:
+                        type: object
         '422':
           description: invalid status
           content:
@@ -1701,13 +1487,33 @@ paths:
                   - template_id
                   - marketplace_id
                   - order_number
+                invitation:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Wedding Andi & Sari
+                    slug:
+                      type: string
+                      example: andi-sari
+                    description:
+                      type: string
+                      nullable: true
+                      example: The wedding of Andi & Sari
+                  required:
+                  - name
+                  - slug
+              required:
+              - order
+              - invitation
         required: true
   "/api/v1/super_admin/orders/{id}":
     get:
       summary: Show order
       tags:
       - Super Admin | Orders
-      description: Returns a single order by ID. Accessible by super_admin only.
+      description: Returns a single order with its invitation by ID. Accessible by
+        super_admin only.
       security:
       - cookieAuth: []
       parameters:
@@ -1747,11 +1553,11 @@ paths:
               schema:
                 "$ref": "#/components/schemas/JSendFail"
     patch:
-      summary: Update order
+      summary: Update order with its invitation
       tags:
       - Super Admin | Orders
-      description: Updates an order (template, marketplace, order number and/or status)
-        by ID. Accessible by super_admin only.
+      description: 'Updates an order and its invitation in one atomic call. Fields
+        are PATCH-style: only those sent are changed. Accessible by super_admin only.'
       security:
       - cookieAuth: []
       parameters:
@@ -1818,13 +1624,26 @@ paths:
                       - working
                       - review
                       - completed
+                invitation:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    slug:
+                      type: string
+                    description:
+                      type: string
+                      nullable: true
+              required:
+              - order
+              - invitation
         required: true
     delete:
       summary: Delete order
       tags:
       - Super Admin | Orders
-      description: Permanently deletes an order by ID (hard delete). Accessible by
-        super_admin only.
+      description: Permanently deletes an order by ID (hard delete). Its invitation
+        is deleted too (cascade). Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters:

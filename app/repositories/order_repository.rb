@@ -1,25 +1,24 @@
 class OrderRepository < BaseRepository
-  def list_all
-    Order.includes(:template, :marketplace).order(created_at: :desc)
+  def list_all(query = {})
+    Order.ransack(query).result
+         .includes(:template, :marketplace, :invitation)
+         .order(created_at: :desc)
   end
 
   def find_by_id(id)
-    Order.includes(:template, :marketplace).find(id)
+    Order.includes(:template, :marketplace, :invitation).find(id)
   end
 
-  def create_order(template_id:, marketplace_id:, order_number:, status:)
-    attrs = { template_id: template_id, marketplace_id: marketplace_id, order_number: order_number }
-    attrs[:status] = status if status.present?
-    Order.create!(attrs)
+  def create_order(attributes)
+    Order.transaction do
+      order = Order.create!(attributes)
+      snapshot_invitation_document(order)
+      order
+    end
   end
 
-  def update_order(order, template_id:, marketplace_id:, order_number:, status:)
-    attrs = {}
-    attrs[:template_id]    = template_id    if template_id.present?
-    attrs[:marketplace_id] = marketplace_id if marketplace_id.present?
-    attrs[:order_number]   = order_number   if order_number.present?
-    attrs[:status]         = status         if status.present?
-    order.update!(attrs)
+  def update_order(order, attributes)
+    order.update!(attributes)
     order
   end
 
@@ -28,6 +27,16 @@ class OrderRepository < BaseRepository
   end
 
   private
+
+  # The invitation carries a snapshot of the order template's document so later template edits
+  # never change an already-placed order. The invitation row itself is created via nested
+  # attributes; this copies the document content the nested form can't supply.
+  def snapshot_invitation_document(order)
+    snapshot = order.template.template_document
+    raise ActiveRecord::RecordNotFound, "Template has no document to snapshot" if snapshot.nil?
+
+    order.invitation.create_invitation_document!(meta: snapshot.meta, document: snapshot.document)
+  end
 
   def model
     Order

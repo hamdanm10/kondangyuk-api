@@ -23,7 +23,10 @@ namespace :api do
         resource :thumbnail, only: [ :show, :update, :destroy ], controller: "template_thumbnails"
       end
 
-      resources :invitations, only: [ :index, :show, :create, :update, :destroy ] do
+      # Invitations are created/updated/deleted through their order (Order has_one Invitation).
+      # Only the read-only detail and the content sub-resources are addressed directly here, via
+      # the invitation id from the order.
+      resources :invitations, only: [ :show ] do
         resource :document, only: [ :show, :update, :destroy ], controller: "invitation_documents" do
           resources :media, only: [ :index, :create, :destroy ], controller: "invitation_document_media"
         end

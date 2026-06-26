@@ -13,6 +13,13 @@ json.data do
       json.id   order.marketplace.id
       json.name order.marketplace.name
     end
+    json.invitation do
+      json.id           order.invitation.id
+      json.slug         order.invitation.slug
+      json.name         order.invitation.name
+      json.published_at order.invitation.published_at
+      json.expires_at   order.invitation.expires_at
+    end
     json.created_at order.created_at
   end
   json.pagination do
