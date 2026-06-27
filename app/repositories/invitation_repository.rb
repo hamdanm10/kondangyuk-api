@@ -1,6 +1,6 @@
 class InvitationRepository < BaseRepository
   def find_by_id_or_slug(value)
-    scope = Invitation.includes(:order)
+    scope = Invitation.active.includes(:order)
     if value.to_s.match?(/\A\d+\z/)
       scope.find(value)
     else

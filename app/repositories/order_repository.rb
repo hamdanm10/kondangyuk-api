@@ -1,12 +1,12 @@
 class OrderRepository < BaseRepository
   def list_all(query = {})
-    Order.ransack(query).result
+    Order.active.ransack(query).result
          .includes(:template, :marketplace, :invitation)
          .order(created_at: :desc)
   end
 
   def find_by_id(id)
-    Order.includes(:template, :marketplace, :invitation).find(id)
+    Order.active.includes(:template, :marketplace, :invitation).find(id)
   end
 
   def create_order(attributes)
@@ -22,8 +22,15 @@ class OrderRepository < BaseRepository
     order
   end
 
+  # Orders are crucial, so they are soft deleted (deleted_at set, row retained). The invitation is
+  # soft deleted alongside it, keeping its document and thumbnail.
   def delete_order(order)
-    order.destroy!
+    now = Time.current
+    Order.transaction do
+      order.invitation&.update!(deleted_at: now)
+      order.update!(deleted_at: now)
+    end
+    order
   end
 
   private

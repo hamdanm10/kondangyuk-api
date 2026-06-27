@@ -54,7 +54,8 @@ module Api
       def search_params
         params.fetch(:q, {}).permit(
           :order_number_cont, :invitation_name_cont, :invitation_slug_cont,
-          :status_eq, :marketplace_id_eq, :template_id_eq
+          :status_eq, :marketplace_id_eq, :template_id_eq,
+          :created_at_gteq, :created_at_lteq
         )
       end
     end

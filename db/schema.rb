@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_175841) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_26_141506) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,6 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_175841) do
 
   create_table "invitations", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at", precision: nil
     t.text "description"
     t.datetime "expires_at", precision: nil
     t.string "name", null: false
@@ -75,12 +76,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_175841) do
 
   create_table "orders", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "deleted_at", precision: nil
     t.bigint "marketplace_id", null: false
     t.string "order_number", null: false
     t.enum "status", default: "pending", null: false, enum_type: "order_status"
     t.bigint "template_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["marketplace_id", "order_number"], name: "index_orders_on_marketplace_id_and_order_number", unique: true
+    t.index ["marketplace_id", "order_number"], name: "index_orders_on_marketplace_id_and_order_number", unique: true, where: "(deleted_at IS NULL)"
     t.index ["template_id"], name: "index_orders_on_template_id"
   end
 

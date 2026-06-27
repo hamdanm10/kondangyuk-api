@@ -17,6 +17,8 @@ RSpec.describe 'API V1 Orders', type: :request do
       parameter name: 'q[status_eq]',            in: :query, type: :string,  required: false, description: 'Filter by status (pending|working|review|completed)'
       parameter name: 'q[marketplace_id_eq]',    in: :query, type: :integer, required: false, description: 'Filter by marketplace id'
       parameter name: 'q[template_id_eq]',       in: :query, type: :integer, required: false, description: 'Filter by template id'
+      parameter name: 'q[created_at_gteq]',      in: :query, type: :string,  required: false, description: 'Filter by created_at from (inclusive) — date or datetime'
+      parameter name: 'q[created_at_lteq]',      in: :query, type: :string,  required: false, description: 'Filter by created_at to (inclusive) — date or datetime'
 
       response '200', 'orders returned' do
         let(:super_admin) { create(:user, :super_admin) }
@@ -91,6 +93,23 @@ RSpec.describe 'API V1 Orders', type: :request do
         run_test! do |response|
           numbers = JSON.parse(response.body)['data']['orders'].map { |o| o['order_number'] }
           expect(numbers).to eq([ 'SHP-001' ])
+        end
+      end
+
+      response '200', 'orders filtered by created_at range' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:'q[created_at_gteq]') { '2026-02-01' }
+        let(:'q[created_at_lteq]') { '2026-02-28' }
+        before do
+          create(:order, :with_invitation, order_number: 'IN-RANGE',  created_at: Time.zone.parse('2026-02-15'))
+          create(:order, :with_invitation, order_number: 'OUT-RANGE', created_at: Time.zone.parse('2026-01-10'))
+          login_as(super_admin)
+        end
+
+        schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
+        run_test! do |response|
+          numbers = JSON.parse(response.body)['data']['orders'].map { |o| o['order_number'] }
+          expect(numbers).to eq([ 'IN-RANGE' ])
         end
       end
 
@@ -170,6 +189,32 @@ RSpec.describe 'API V1 Orders', type: :request do
           expect(invitation['slug']).to eq('andi-sari')
           expect(invitation['published_at']).to be_nil
           expect(invitation['expires_at']).to be_present
+        end
+      end
+
+      response '201', 'reuses an order number freed by a soft-deleted order' do
+        let(:super_admin) { create(:user, :super_admin) }
+        let(:template)    { create(:template, :with_document) }
+        let(:marketplace) { create(:marketplace) }
+        let(:body) do
+          {
+            order:      { template_id: template.id, marketplace_id: marketplace.id, order_number: 'SHP-REUSE' },
+            invitation: { name: 'Wedding Reuse', slug: 'wedding-reuse' }
+          }
+        end
+        before do
+          # A previously soft-deleted order holds the same number in the same marketplace.
+          create(:order, marketplace: marketplace, order_number: 'SHP-REUSE', deleted_at: Time.current)
+          login_as(super_admin)
+        end
+
+        schema type: :object,
+               properties: {
+                 status: { type: :string },
+                 data:   { type: :object }
+               }
+        run_test! do |response|
+          expect(JSON.parse(response.body).dig('data', 'order', 'order_number')).to eq('SHP-REUSE')
         end
       end
 
@@ -342,8 +387,9 @@ RSpec.describe 'API V1 Orders', type: :request do
     delete 'Delete order' do
       tags 'Super Admin | Orders'
       produces 'application/json'
-      description 'Permanently deletes an order by ID (hard delete). Its invitation is deleted too ' \
-                  '(cascade). Accessible by super_admin only.'
+      description 'Soft deletes an order by ID (sets deleted_at). The order row is retained (crucial ' \
+                  'data) and excluded from all queries; its invitation is soft deleted alongside it. ' \
+                  'Accessible by super_admin only.'
       security [ cookieAuth: [] ]
       parameter name: :id, in: :path, type: :integer, required: true
 
@@ -354,7 +400,11 @@ RSpec.describe 'API V1 Orders', type: :request do
         before { login_as(super_admin) }
         schema type: :object, properties: { status: { type: :string }, data: { type: :object } }
         run_test! do |_response|
-          expect(Invitation.where(order_id: id)).to be_empty
+          # Both order and invitation are retained but soft deleted (excluded from active scope).
+          expect(Order.find(id).deleted_at).to be_present
+          expect(Order.active.where(id: id)).to be_empty
+          expect(Invitation.where(order_id: id).first.deleted_at).to be_present
+          expect(Invitation.active.where(order_id: id)).to be_empty
         end
       end
 

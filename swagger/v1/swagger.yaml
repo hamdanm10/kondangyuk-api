@@ -1617,9 +1617,21 @@ paths:
         description: Filter by template id
         schema:
           type: integer
+      - name: q[created_at_gteq]
+        in: query
+        required: false
+        description: Filter by created_at from (inclusive) — date or datetime
+        schema:
+          type: string
+      - name: q[created_at_lteq]
+        in: query
+        required: false
+        description: Filter by created_at to (inclusive) — date or datetime
+        schema:
+          type: string
       responses:
         '200':
-          description: orders searched by order number
+          description: orders filtered by created_at range
           content:
             application/json:
               schema:
@@ -1692,7 +1704,7 @@ paths:
       parameters: []
       responses:
         '201':
-          description: order and invitation created
+          description: reuses an order number freed by a soft-deleted order
           content:
             application/json:
               schema:
@@ -1887,8 +1899,9 @@ paths:
       summary: Delete order
       tags:
       - Super Admin | Orders
-      description: Permanently deletes an order by ID (hard delete). Its invitation
-        is deleted too (cascade). Accessible by super_admin only.
+      description: Soft deletes an order by ID (sets deleted_at). The order row is
+        retained (crucial data) and excluded from all queries; its invitation is soft
+        deleted alongside it. Accessible by super_admin only.
       security:
       - cookieAuth: []
       parameters:

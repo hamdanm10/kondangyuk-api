@@ -9,7 +9,16 @@ class Order < ApplicationRecord
 
   enum :status, { pending: "pending", working: "working", review: "review", completed: "completed" }
 
-  validates :order_number, presence: true, uniqueness: { scope: :marketplace_id }
+  scope :active, -> { where(deleted_at: nil) }
+
+  # Uniqueness only applies among active (non-soft-deleted) orders, so a deleted order's number can
+  # be reused within the same marketplace.
+  validates :order_number, presence: true,
+                           uniqueness: { scope: :marketplace_id, conditions: -> { where(deleted_at: nil) } }
+
+  def soft_deleted?
+    deleted_at.present?
+  end
 
   def self.ransackable_attributes(_auth_object = nil)
     %w[order_number status template_id marketplace_id created_at]
