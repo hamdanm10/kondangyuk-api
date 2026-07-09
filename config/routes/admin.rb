@@ -1,7 +1,7 @@
 namespace :api do
   namespace :v1 do
     namespace :admin do
-      # Admin endpoints go here.
+      resource :profile, only: [ :show, :update ]
     end
   end
 end

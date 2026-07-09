@@ -10,6 +10,10 @@ FactoryBot.define do
       role { :super_admin }
     end
 
+    trait :designer do
+      role { :designer }
+    end
+
     trait :inactive do
       is_active { false }
     end
