@@ -63,4 +63,4 @@ group :test do
 end
 
 # Pagination
-gem "pagy", "~> 43.5"
+gem "pagy", "~> 43.6"
